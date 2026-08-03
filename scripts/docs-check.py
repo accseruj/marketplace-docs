@@ -105,6 +105,38 @@ for p in md_files:
         if "TODO(" in line or "OPEN:" in line:
             markers.append(f"{rel}:{i}: {line.strip()[:100]}")
 
+# 5. every invariant carries a derivation, every assumption a falsifier with a
+#    threshold. CONVENTIONS: "Every asserted claim names its falsifier".
+#    Warnings, not errors: a gap flagged as TODO(human) is the established way
+#    to own an unanswered question here, and a permanently red check trains
+#    people to ignore it. What this catches is the gap nobody marked.
+#    Scan only the declaration list, not the retirement pointers that follow it -
+#    "- INV-01 -> ASM-01" records a demotion, it does not assert a constraint.
+inv_section = index_text.split("## Project invariants", 1)[-1].split("\nRetired from this list", 1)[0]
+inv_line = re.compile(r"^- (INV-\d+) (.+)$", re.M)
+for m in inv_line.finditer(inv_section):
+    inv, body = m.group(1), m.group(2)
+    if not re.search(r"Derived|derivation|See ADR-\d+", body):
+        errors.append(f"INDEX.md: {inv} states a constraint with no derivation")
+    if not re.search(r"[Rr]evisit trigger", body) and "ADR-" not in body:
+        warnings.append(f"INDEX.md: {inv} names no revisit trigger")
+
+asm_path = ROOT / "00-product" / "assumptions.md"
+if asm_path.exists():
+    asm_text = asm_path.read_text(encoding="utf-8")
+    for block in re.split(r"^## ", asm_text, flags=re.M)[1:]:
+        head = block.splitlines()[0].strip()
+        aid = head.split(" ")[0]
+        if not aid.startswith("ASM-"):
+            continue
+        falsifiers = [l for l in block.splitlines() if re.search(r"[Ff]alsifier", l)]
+        if not falsifiers:
+            errors.append(f"assumptions.md: {aid} has no falsifier line")
+            continue
+        for l in falsifiers:
+            if re.search(r"TODO\(|none exists|no threshold|Incomplete", l):
+                warnings.append(f"assumptions.md: {aid} falsifier is incomplete - {l.strip()[:90]}")
+
 print(f"checked {len(md_files)} files\n")
 if errors:
     print(f"ERRORS ({len(errors)}):")
