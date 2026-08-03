@@ -66,7 +66,14 @@ The obligation differs by what kind of statement it is. Corrected 2026-08-04: th
 - **Checks** - a check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick. Applies to checks this project writes for its own conventions; third-party tool behaviour is a claim about documentation, covered below.
 - **Facts copied from documentation** are claims about documentation. Cite the primary source or mark them unverified.
 
-**A collection task captures the union of what every live option needs, not what the current model asks for.** Otherwise the evidence confirms the current model by construction: you measured exactly what it requested. State the discriminating field or observation explicitly in the task, including the ones no current design uses. A falsifier that cannot separate its own hypothesis from a rival explanation is not a falsifier - naming one is the same failure as naming none, and harder to notice because the box looks ticked.
+**A collection task captures the union of what every live option needs, not what the current model asks for.** Otherwise the evidence confirms the current model by construction: you measured exactly what it requested. State the discriminating field or observation explicitly in the task, including the ones no current design uses.
+
+**A falsifier must separate the hypothesis from the nearest live alternative** - the explanation that would actually be raised on failure and that leads to a *different decision*. Not from every rival: no empirical test survives that reading, because an auxiliary hypothesis always remains untested, and the rule would forbid measuring anything. Where the alternatives lead to the same next action, discrimination is not required.
+
+- ASM-03 must discriminate: "the niche is too hard" leads to changing niche, "attribute-generated copy does not rank" leads to abandoning the 10-20 storefront model. Different decisions.
+- ASM-01 need not: an instance that fails its capacity measurement leads to tuning and re-measuring whether the cause is Magento or the configuration. Same next action either way.
+
+A falsifier with no threshold is not a falsifier either - it is an intention to have one, and it ticks the box the same way.
 
 The mechanical habit that catches this while writing rather than at review: never pipe something whose exit code you need. `python3 scripts/docs-check.py > out 2>&1; echo $?` - not `| tail`, which reports the exit code of `tail`. This rule was violated inside the commit that introduced it.
 
@@ -74,6 +81,8 @@ The mechanical habit that catches this while writing rather than at review: neve
 Not every rejected review finding needs a record - that generates its own sprawl. The test is consequence, not severity: **record the rejection when the rejection itself constrains future design.**
 
 Worked example from this repo. AUD-04 argues sourcing should be scoped to the order rather than the order line, because a per-line cheapest-offer rule splits baskets across suppliers and pays a second parcel to save a few percent on line cost. Rejecting it commits the project to per-line sourcing and to accepting that loss - a decision, and it belongs in `10-architecture/domain-model.md` or in an ADR superseding the relevant part of ADR-0006. By contrast, rejecting a suggestion to split a module into sub-modules is a preference and needs nothing.
+
+Verifiability applies to arguments too, in a different form. A finding with a `file:line` carries a command that re-derives it; an argument cannot, but it has premises. The analogue is a named premise set - what must be true for the conclusion to hold. The reliable/unreliable boundary is therefore not numbers versus findings, but **statements that carry a way to re-derive them versus statements that do not**, where the way is a command for facts and a premise set for arguments.
 
 Applied to the 2026-08-04 audit by its author, this criterion selects 10 findings of 33 - and 7 of those 10 are exactly the S1 set. The criterion is therefore not an independent axis: it reproduces severity and exposes three findings whose assigned severity was wrong. Use it as a check on severity, not as a second one.
 

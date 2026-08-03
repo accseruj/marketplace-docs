@@ -18,7 +18,8 @@ Was INV-01. Reclassified 2026-08-04: it is a capacity bet nobody has measured.
 
 - Statement: one Magento 2 Open Source instance serves all 10-20 websites. No second instance.
 - What rests on it: ADR-0001 (headless storefronts against one GraphQL endpoint), SC-01, SC-04, the entire infrastructure cost model, and the single `Commerce core` container in `10-architecture/c4-container.md`.
-- Falsifier, measurable at Phase 0: indexer wall time at N websites against real catalog size; GraphQL p95 under multi-website scope resolution; admin usability at 20 store views. TODO(human): set the threshold at which a second instance or a catalog split becomes correct.
+- Falsifier, measurable at Phase 0: indexer wall time at N websites against real catalog size; GraphQL p95 under multi-website scope resolution; admin usability at 20 store views. **Incomplete: no threshold is set, so this is an intention to have a falsifier rather than one.** TODO(human): set the value at which a second instance or a catalog split becomes correct. Until then ASM-01 cannot be disproved, only discussed.
+- It does not need to separate "Magento cannot do this" from "this configuration cannot do this": both lead to tuning and re-measuring before either leads to a split. See the discrimination rule in `CONVENTIONS.md`.
 - Status: untested. No Magento instance exists yet.
 - If false: ADR-0001 and ADR-0002 hold, but the cost model and SC-04 do not, and INV-01's replacement is an ADR on catalog partitioning.
 
