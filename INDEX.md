@@ -37,6 +37,7 @@ updated: 2026-08-03
 | Reconstructing why something was once true | `60-decisions/` first, `90-archive/` only if needed |
 | Writing a new feature spec | `00-product/prd/TEMPLATE.md` then `10-architecture/tech-spec/TEMPLATE.md` |
 | Recording a decision | `60-decisions/TEMPLATE.md` |
+| Dispositioning the 2026-08-04 foundational audit | `audit-2026-08-04.md`. Temporary; retire to `90-archive/` once every finding is dispositioned. |
 
 ## Decision index
 | ADR | Title | Status |

@@ -34,6 +34,21 @@ def parse_frontmatter(text):
 # documentation: their frontmatter follows the agent-skill schema, not this
 # repo's, and they are reached by the agent runtime rather than by INDEX.md.
 SKIP_DIRS = {".git", ".github", ".claude", ".beads"}
+
+# Files whose .md references are legitimately allowed to dangle. Each entry
+# needs a reason; a growing list without reasons means the check is wrong,
+# not that the corpus is exceptional.
+#   CLAUDE.template.md - paths are relative to a code repo, not to this one.
+#   90-archive/**      - retired files keep their original content by rule, so
+#                        their links point at a world that no longer exists.
+#   audit-*.md         - an audit names the files it proposes creating, which
+#                        by definition do not exist yet.
+NO_LINK_CHECK = (
+    lambda rel: rel == "CLAUDE.template.md"
+    or rel.startswith("90-archive/")
+    or re.fullmatch(r"audit-\d{4}-\d{2}-\d{2}\.md", rel) is not None
+)
+
 md_files = sorted(p for p in ROOT.rglob("*.md") if not SKIP_DIRS & set(p.parts))
 index_text = (ROOT / "INDEX.md").read_text(encoding="utf-8")
 
@@ -68,12 +83,9 @@ for p in md_files:
             errors.append(f"{rel}: not reachable from the INDEX.md routing table")
 
     # 3. broken relative links
-    # skipped: CLAUDE.template.md (paths are relative to a code repo, not here)
-    # skipped: 90-archive (retired files keep their original content by rule, so
-    #          their links point at a world that no longer exists; nothing there
-    #          is authoritative, so a dangling link is the expected state)
-    # skipped: sections listing files that are planned but not yet written
-    if rel != "CLAUDE.template.md" and "90-archive" not in rel:
+    # exemptions and their reasons are in NO_LINK_CHECK above
+    # also skipped: sections listing files that are planned but not yet written
+    if not NO_LINK_CHECK(rel):
         body, skip = [], False
         for line in text.splitlines():
             if line.startswith("##"):
