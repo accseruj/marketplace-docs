@@ -35,19 +35,21 @@ def parse_frontmatter(text):
 # repo's, and they are reached by the agent runtime rather than by INDEX.md.
 SKIP_DIRS = {".git", ".github", ".claude", ".beads"}
 
-# Files whose .md references are legitimately allowed to dangle. Each entry
-# needs a reason; a growing list without reasons means the check is wrong,
-# not that the corpus is exceptional.
-#   CLAUDE.template.md - paths are relative to a code repo, not to this one.
-#   90-archive/**      - retired files keep their original content by rule, so
-#                        their links point at a world that no longer exists.
-#   audit-*.md         - an audit names the files it proposes creating, which
-#                        by definition do not exist yet.
-NO_LINK_CHECK = (
-    lambda rel: rel == "CLAUDE.template.md"
-    or rel.startswith("90-archive/")
-    or re.fullmatch(r"audit-\d{4}-\d{2}-\d{2}\.md", rel) is not None
-)
+# Files whose .md references are legitimately allowed to dangle.
+# The reason is data, not a comment: an entry without one cannot be added.
+# A list that keeps growing means the check models the corpus wrongly - see
+# the doc_class proposal in bd issue docs-8gf.
+NO_LINK_CHECK = {
+    r"CLAUDE\.template\.md": "paths are relative to a code repo, not to this one",
+    r"90-archive/.*": "retired files keep their original content by rule, so their links point at a world that no longer exists",
+    r"audit-\d{4}-\d{2}-\d{2}\.md": "an audit names the files it proposes creating, which by definition do not exist yet",
+}
+for _pat, _reason in NO_LINK_CHECK.items():
+    if not _reason.strip():
+        raise SystemExit(f"docs-check: link-check exemption {_pat!r} has no reason")
+
+def link_check_exempt(rel):
+    return any(re.fullmatch(pat, rel) for pat in NO_LINK_CHECK)
 
 md_files = sorted(p for p in ROOT.rglob("*.md") if not SKIP_DIRS & set(p.parts))
 index_text = (ROOT / "INDEX.md").read_text(encoding="utf-8")
@@ -85,7 +87,7 @@ for p in md_files:
     # 3. broken relative links
     # exemptions and their reasons are in NO_LINK_CHECK above
     # also skipped: sections listing files that are planned but not yet written
-    if not NO_LINK_CHECK(rel):
+    if not link_check_exempt(rel):
         body, skip = [], False
         for line in text.splitlines():
             if line.startswith("##"):

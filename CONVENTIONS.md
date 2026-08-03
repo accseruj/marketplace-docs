@@ -59,15 +59,19 @@ Documentation decays by accumulation, not by error. Three mechanisms keep it fro
 ## Every asserted claim names its falsifier
 Added 2026-08-04, after the foundational audit found the same failure three times: the project asserted invariants with nothing that could test them, the Phase -1 exit gate specified a 19x3 matrix that existed nowhere, and `scripts/docs-check.py` claimed to enforce a routing rule it could not detect a violation of. The same session asserted a durability property of a tool it had installed twenty minutes earlier, and recorded software versions read from documentation rather than from the software.
 
-One rule covers all of it:
+The obligation differs by what kind of statement it is. Corrected 2026-08-04: the first version demanded a falsifier from every constraint, which is a category error for half of them.
 
-- Stating a constraint, a capacity, a version or a property obliges you to name what would show it false, in the same edit.
-- A constraint with no falsifier is not an invariant. It goes in `00-product/assumptions.md`.
-- A check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick.
-- A fact copied from documentation is a claim about documentation. Cite the primary source or mark it unverified.
+- **Empirical statements** - capacity, cost, performance, market behaviour, anything that is true or false about the world. Naming one obliges you to name what would show it false, in the same edit. An empirical claim with no falsifier is not an invariant; it belongs in `00-product/assumptions.md`.
+- **Commitments** - boundaries, roles, the business model. INV-04, INV-05 and INV-11 cannot be falsified; they can only be abandoned. Naming one obliges you to name where it was derived and what would make the project revisit it.
+- **Checks** - a check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick. Applies to checks this project writes for its own conventions; third-party tool behaviour is a claim about documentation, covered below.
+- **Facts copied from documentation** are claims about documentation. Cite the primary source or mark them unverified.
 
 ## Rejecting a finding is a decision, sometimes
-Not every rejected review finding needs a record - that generates its own sprawl. The test is consequence, not severity: **record the rejection when the rejection itself constrains future design.** Rejecting "put personal data at order level" is a decision and belongs in the doc that owns the topic, or in an ADR. Rejecting "split the router into sub-routers" is a preference and needs nothing.
+Not every rejected review finding needs a record - that generates its own sprawl. The test is consequence, not severity: **record the rejection when the rejection itself constrains future design.**
+
+Worked example from this repo. AUD-04 argues sourcing should be scoped to the order rather than the order line, because a per-line cheapest-offer rule splits baskets across suppliers and pays a second parcel to save a few percent on line cost. Rejecting it commits the project to per-line sourcing and to accepting that loss - a decision, and it belongs in `10-architecture/domain-model.md` or in an ADR superseding the relevant part of ADR-0006. By contrast, rejecting a suggestion to split a module into sub-modules is a preference and needs nothing.
+
+Applied to the 2026-08-04 audit by its author, this criterion selects 10 findings of 33 - and 7 of those 10 are exactly the S1 set. The criterion is therefore not an independent axis: it reproduces severity and exposes three findings whose assigned severity was wrong. Use it as a check on severity, not as a second one.
 
 ## Docs hygiene pass
 Run at every phase gate, and whenever the routing table stops feeling obvious. Automate what can be automated in CI:

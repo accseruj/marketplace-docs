@@ -56,14 +56,14 @@ updated: 2026-08-04
 Living docs carry no history; `60-decisions/` is the history; git is the version record. Retirement rules and the hygiene checklist are in `CONVENTIONS.md`. Run `python3 scripts/docs-check.py` at every phase gate — it also runs in CI on push, PR and weekly.
 
 ## Project invariants
-Constraints the project chose and will not violate. Changing one requires a new ADR. Each names where it was derived; an invariant with no derivation is an assumption in disguise and belongs in `00-product/assumptions.md`.
+Constraints the project chose and will not violate. Changing one requires a new ADR. Each names where it was derived; an invariant with no derivation is an assumption in disguise and belongs in `00-product/assumptions.md`. These are commitments, not empirical claims - they cannot be falsified, only abandoned, so each carries a revisit trigger rather than a test. See `CONVENTIONS.md`, "Every asserted claim names its falsifier".
 - INV-02 Storefronts are headless; Magento renders no customer-facing HTML. Derived in ADR-0001.
 - INV-03 Every state transition in the value chain is writable by an API or event, never only by a human in a UI. Derived in `00-product/automation-charter.md` - readiness test #3 and anti-pattern #1. OPEN: the charter is a living doc, so this derivation can move without an ADR; decide whether that is acceptable.
-- INV-04 First-party sales only. No third-party sellers transact on the storefronts. The operator is the merchant of record on every order.
-- INV-05 Dropshipping. No owned warehouse, no owned stock. All physical inventory is held by suppliers and shipped by them.
-- INV-06 Greenfield. The system has no dependency on, and no integration with, any pre-existing PIM or ERP. Every capability is built inside this system's boundary.
+- INV-04 First-party sales only. No third-party sellers transact on the storefronts. The operator is the merchant of record on every order. Derived in `00-product/vision.md` business model; cited by ADR-0007, which depends on it for the GPSR role. Revisit trigger: a decision to onboard third-party sellers, which would reopen ADR-0007 entirely.
+- INV-05 Dropshipping. No owned warehouse, no owned stock. All physical inventory is held by suppliers and shipped by them. Derived in `00-product/vision.md` business model; cited by ADR-0001, ADR-0003 and ADR-0007. Revisit trigger: acquiring stock or 3PL fulfilment, currently out of scope.
+- INV-06 Greenfield. The system has no dependency on, and no integration with, any pre-existing PIM or ERP. Every capability is built inside this system's boundary. Derived in `00-product/vision.md`; it is what forces ADR-0005 to exist. Revisit trigger: acquiring or inheriting a system that already owns catalog data.
 - INV-07 No proprietary vendor runtime in the critical path. Its derivation exists - ADR-0001's options table rejects Vue Storefront and Front-Commerce on exactly this ground, and ADR-0003 cites it in consequences - but all three sites label it INV-05 by mistake. Correcting that label is what completes the derivation; blocked on `bd` issue docs-cn2, since both ADRs are frozen.
-- INV-09 The system never displays availability it cannot source. Stock and price freshness are correctness requirements, not optimisations.
+- INV-09 The system never displays availability it cannot source. Stock and price freshness are correctness requirements, not optimisations. Derived from the oversell risk in `00-product/vision.md`; cited by ADR-0005 and ADR-0006. Revisit trigger: none foreseen - abandoning it means accepting oversell as normal, which SC-06 forbids.
 - INV-10 The operator is a distributor under GPSR, never an importer and never a manufacturer. Every supplier must have already placed the goods on the EU market. See ADR-0007.
 - INV-11 No own brand, no private label, no rebranding of supplier goods. Applying own branding would reclassify the operator as manufacturer. See ADR-0007.
 
