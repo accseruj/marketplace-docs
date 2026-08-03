@@ -69,8 +69,11 @@ for p in md_files:
 
     # 3. broken relative links
     # skipped: CLAUDE.template.md (paths are relative to a code repo, not here)
+    # skipped: 90-archive (retired files keep their original content by rule, so
+    #          their links point at a world that no longer exists; nothing there
+    #          is authoritative, so a dangling link is the expected state)
     # skipped: sections listing files that are planned but not yet written
-    if rel != "CLAUDE.template.md":
+    if rel != "CLAUDE.template.md" and "90-archive" not in rel:
         body, skip = [], False
         for line in text.splitlines():
             if line.startswith("##"):

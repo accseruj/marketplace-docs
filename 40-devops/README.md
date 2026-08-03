@@ -42,6 +42,8 @@ Authored: `session-close` - the four-step procedure in `CONVENTIONS.md`. Lives i
 Hooks:
 - `SessionStart` runs `scripts/session-brief.sh`, which prints the current phase's item 1 from `00-product/roadmap.md` and the last three commits into the model's context. Wired in `.claude/settings.json` at the workspace root, above this repo. Removes the "where did we stop" round-trip at the start of every session.
 
+Project knowledge on claude.ai: connect this repo via "+" -> GitHub and select only `INDEX.md`, `CONVENTIONS.md`, `00-product/{vision,automation-charter,roadmap,market-selection}.md`, `10-architecture/{domain-model,c4-container}.md`, `60-decisions/*.md`. Refreshing is then one "Sync now" for everything. Never upload individual files - they go stale on the next edit. Everything outside that list is read on demand in Claude Code.
+
 Subagents (context isolation, not roles): `researcher`, `code-reviewer`, `security-auditor`, `test-runner`, `visual-regression`, `magento-log-triage`.
 
 Tools: bash (WSL/Docker/n98-magerun2) + GitHub baseline; Playwright and Cloudflare added when the phase needs them. Every added MCP server costs context before the first call.
