@@ -3,7 +3,7 @@ doc: vision
 purpose: Why the project exists, the business model, what success is, what is out of scope.
 read_when: any product or prioritisation question
 status: draft
-updated: 2026-08-03
+updated: 2026-08-04
 related: [00-product/automation-charter.md, 00-product/roadmap.md]
 ---
 
@@ -31,12 +31,12 @@ A greenfield dropshipping platform: 10-20 niche storefronts on a single Magento 
 - SC-05 Onboarding a new supplier is a configuration + mapping task, not a code change.
 - SC-06 Oversell rate below a defined threshold. TODO(human): set the threshold.
 - SC-07 Automation level per value-chain stage reaches L2 or higher (see automation charter).
-- SC-08 Stable long-term profitability. TODO(human): define the concrete financial target and horizon.
+- SC-08 Stable long-term profitability. TODO(human): define the concrete financial target and horizon. No longer deferrable - the paid-traffic fallback under ASM-03 makes unit economics a precondition for the acquisition model, not a later exercise.
 
 ## Constraints
 - Single operator. No human team. Capacity is the binding constraint on every plan.
 - Preparatory phase is intentionally unbounded in time; correctness of foundations outranks speed.
-- Priority order for platform decisions: infrastructure cost > Core Web Vitals/SEO > maintenance effort > time-to-launch.
+- Platform decisions are resolved by the priority order in ASM-02, `00-product/assumptions.md`. It is an assumption, not a settled constraint.
 
 ## Structural risks of the model
 These are inherent to dropshipping and must be designed for, not discovered later.
@@ -47,6 +47,7 @@ These are inherent to dropshipping and must be designed for, not discovered late
 - Returns -> unclear ownership when the operator holds no warehouse. TODO(human): returns policy is a prerequisite for the returns design.
 - Supplier feed schema drift -> silent catalog corruption.
 - Supplier concentration -> a single supplier's outage removes a storefront's assortment.
+- **Acquisition rests on an untested premise, and one of its failure modes is silent.** Organic search is the primary channel, fed by copy generated from structured attributes in a language the operator does not speak. It may simply not rank - measurable, but only after months. Or it may be poor copy that nobody catches, because as of 2026-08-04 there is no reviewer and no quality signal at all. The fallback is paid traffic, which makes SC-08 blocking rather than deferrable: distributor margin must cover paid acquisition cost, and nothing establishes that it does. Recorded in full as ASM-03 in `00-product/assumptions.md`.
 
 ## Out of scope (for now)
 - Third-party seller onboarding.

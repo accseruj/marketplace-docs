@@ -3,7 +3,7 @@ doc: backend-index
 purpose: Magento 2 platform facts, constraints and known traps for the multi-website setup.
 read_when: any Magento or integration work
 status: draft
-updated: 2026-08-02
+updated: 2026-08-04
 related: [10-architecture/api-contracts/README.md]
 ---
 
@@ -24,7 +24,7 @@ related: [10-architecture/api-contracts/README.md]
 - Order splitting across suppliers must be modelled explicitly; Magento's native multi-shipment handling is not sufficient on its own.
 
 ## Multi-website rules
-- One instance, 10-20 websites (INV-01). One website = one tenant.
+- One instance, 10-20 websites (ASM-01 - an assumption pending measurement, not an invariant). One website = one tenant.
 - Separate root category per website; products shared across websites, categories not.
 - Keep config-scope overrides shallow. Every unnecessary store-view-scoped setting multiplies config rows and debugging cost.
 - Indexers in "Update by Schedule" (mview) only. Full reindex across 20 websites is not operationally viable.

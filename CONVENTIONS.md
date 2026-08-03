@@ -3,7 +3,7 @@ doc: conventions
 purpose: Format rules for this repo. These rules exist to make ingestion by Claude cheap and unambiguous.
 read_when: before creating or editing any doc
 status: living
-updated: 2026-08-03
+updated: 2026-08-04
 ---
 
 # Conventions
@@ -26,7 +26,7 @@ related: [paths]
 ## Writing style (machine-first)
 - Facts as single-line bullets. One fact per line. No narrative paragraphs.
 - Front-load conclusions. No build-up, no restating the question.
-- Stable IDs for anything referenced elsewhere: `INV-01`, `ADR-0003`, `RB-new-tenant`, `EV-order-placed`.
+- Stable IDs for anything referenced elsewhere: `INV-02`, `ASM-01`, `ADR-0003`, `RB-new-tenant`, `EV-order-placed`.
 - Numbers and versions explicit. "Node 22", not "recent Node".
 - Cross-reference by path, never duplicate a fact. One fact lives in exactly one file.
 - Mark unknowns explicitly: `TODO(owner): question` or `OPEN: <question>` — never silently omit.
@@ -55,6 +55,19 @@ Documentation decays by accumulation, not by error. Three mechanisms keep it fro
 **3. Retirement, not deletion.**
 - A document whose subject no longer exists moves to `90-archive/` with a reason header. See `90-archive/README.md`.
 - Nothing is deleted. Nothing keeps `-v2` copies.
+
+## Every asserted claim names its falsifier
+Added 2026-08-04, after the foundational audit found the same failure three times: the project asserted invariants with nothing that could test them, the Phase -1 exit gate specified a 19x3 matrix that existed nowhere, and `scripts/docs-check.py` claimed to enforce a routing rule it could not detect a violation of. The same session asserted a durability property of a tool it had installed twenty minutes earlier, and recorded software versions read from documentation rather than from the software.
+
+One rule covers all of it:
+
+- Stating a constraint, a capacity, a version or a property obliges you to name what would show it false, in the same edit.
+- A constraint with no falsifier is not an invariant. It goes in `00-product/assumptions.md`.
+- A check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick.
+- A fact copied from documentation is a claim about documentation. Cite the primary source or mark it unverified.
+
+## Rejecting a finding is a decision, sometimes
+Not every rejected review finding needs a record - that generates its own sprawl. The test is consequence, not severity: **record the rejection when the rejection itself constrains future design.** Rejecting "put personal data at order level" is a decision and belongs in the doc that owns the topic, or in an ADR. Rejecting "split the router into sub-routers" is a preference and needs nothing.
 
 ## Docs hygiene pass
 Run at every phase gate, and whenever the routing table stops feeling obvious. Automate what can be automated in CI:
