@@ -77,11 +77,11 @@ There is no hand-off document. A hand-off that lives outside the docs goes stale
 
 Run these four steps before ending any session:
 1. Every decision made in the session is recorded - as an ADR if it is architectural, otherwise as an edit to the living doc that owns the fact. Nothing stays only in the chat.
-2. Reorder `00-product/roadmap.md` so the next session's first action is item 1 of the current phase. Remove what is done; the queue carries open work only.
+2. Update beads: close what was finished (`bd close`), create what the session discovered, set the dependency if a new item is blocked. `bd ready` afterwards must show work that is genuinely startable. Then `bd dolt push` - `git push` does not carry issues (ADR-0008).
 3. Run `python3 scripts/docs-check.py`.
-4. Commit. The message states what was decided and why, not which files changed.
+4. Commit. The message states what was decided and why, not which files changed. When the work belongs to a beads issue, put its id in parentheses at the end of the subject line - `bd doctor` uses that to find issues that were worked on but never closed.
 
-Reconstruction, in order: `INDEX.md` for where things live, `00-product/roadmap.md` for what is next, `60-decisions/` for why, `git log` for when.
+Reconstruction, in order: `INDEX.md` for where things live, `bd ready` for what is next, `60-decisions/` for why, `git log` for when. `00-product/roadmap.md` carries phases and exit gates, never the queue.
 
 ## Commit/PR hygiene
 - Commit messages state intent, not diff summary.

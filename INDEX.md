@@ -20,7 +20,8 @@ updated: 2026-08-03
 |---|---|
 | Why the project exists, success criteria, business model | `00-product/vision.md` |
 | Automation goal, automation-readiness test | `00-product/automation-charter.md` |
-| What we build next, phase gates | `00-product/roadmap.md` |
+| What to work on next | `bd ready` (ADR-0008). Not a file. |
+| Phases and exit gates | `00-product/roadmap.md` |
 | Which market and which vertical launches first, EU compliance filters | `00-product/market-selection.md` |
 | Term I don't recognize | `00-product/glossary.md` |
 | System boundaries, external actors | `10-architecture/c4-context.md` |
@@ -47,6 +48,7 @@ updated: 2026-08-03
 | 0005 | Catalog data layer - PIM or Magento-native | Proposed - BLOCKING |
 | 0006 | Product identity model - canonical product with supplier offers | Accepted |
 | 0007 | Compliance role in the supply chain - distributor only | Accepted |
+| 0008 | Work tracking - beads, replacing GitHub Issues and Projects | Accepted |
 
 ## Documentation health
 Living docs carry no history; `60-decisions/` is the history; git is the version record. Retirement rules and the hygiene checklist are in `CONVENTIONS.md`. Run `python3 scripts/docs-check.py` at every phase gate — it also runs in CI on push, PR and weekly.

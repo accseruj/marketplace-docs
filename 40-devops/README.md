@@ -48,4 +48,4 @@ Subagents (context isolation, not roles): `researcher`, `code-reviewer`, `securi
 
 Tools: bash (WSL/Docker/n98-magerun2) + GitHub baseline; Playwright and Cloudflare added when the phase needs them. Every added MCP server costs context before the first call.
 
-Project tracking: GitHub Issues + Projects. Each issue links its PRD or ADR.
+Project tracking: beads (`bd`), database in this repo under `.beads/` (ADR-0008). Each issue links its PRD or ADR. GitHub Issues and Projects are not used. Issues sync with `bd dolt push`, not with `git push`.

@@ -15,6 +15,18 @@ updated: 2026-08-02
 ## Elicitation first
 Before any substantial piece of work - an ADR, a PRD, a tech spec, a phase kickoff, a research task - run a structured Q&A round instead of assuming. Ask a small number of high-leverage questions (one to three per round), present concrete options rather than open prompts, and only then produce the artefact. The human prefers this and it is the cheapest way to avoid building on a wrong premise. Record the answers in the relevant doc in the same session.
 
+## Issue tracking
+This project uses **bd (beads)** for all work tracking (ADR-0008). Not markdown lists, not GitHub Issues.
+Run `bd prime` for workflow context, or install hooks (`bd hooks install`) for auto-injection.
+- `bd ready` - find unblocked work
+- `bd create "Title" --type task --priority 2` - create an issue
+- `bd dep add <id> --blocked-by <id>` - record a dependency
+- `bd close <id>` - complete work
+- `bd dolt push` - **required**; `git push` does not carry issues
+
+Use `bd update` with flags, never `bd edit` - it needs an interactive editor.
+Where `bd prime` and this repo's `CONVENTIONS.md` disagree on session close, `CONVENTIONS.md` wins: it adds the docs-specific steps.
+
 ## Behaviour
 - This repo is the single source of truth. If code and docs disagree, that is a bug — report it, do not silently pick one.
 - Never invent a decision. If a decision is missing, say so and propose an ADR.

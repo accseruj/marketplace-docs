@@ -33,7 +33,7 @@ def parse_frontmatter(text):
 # .claude holds Claude Code skills and settings. They are tooling config, not
 # documentation: their frontmatter follows the agent-skill schema, not this
 # repo's, and they are reached by the agent runtime rather than by INDEX.md.
-SKIP_DIRS = {".git", ".github", ".claude"}
+SKIP_DIRS = {".git", ".github", ".claude", ".beads"}
 md_files = sorted(p for p in ROOT.rglob("*.md") if not SKIP_DIRS & set(p.parts))
 index_text = (ROOT / "INDEX.md").read_text(encoding="utf-8")
 
