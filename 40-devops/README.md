@@ -3,7 +3,7 @@ doc: devops-index
 purpose: Environments, CI/CD, hosting, monitoring, and the Claude Code tooling setup.
 read_when: infrastructure, deployment or tooling work
 status: draft
-updated: 2026-08-02
+updated: 2026-08-03
 related: [60-decisions/ADR-0003-hosting-platform.md]
 ---
 
@@ -36,6 +36,11 @@ Skills to author in Phase -1 (these carry project conventions; they matter more 
 - `deploy-runbook` - CI, OpenNext deploy, canary, rollback.
 - `adr` - write an ADR in the project's MADR format.
 - `cwv-audit` - run Lighthouse/CrUX checks, thresholds, common regression causes.
+
+Also to author: `session-close` - automates the four-step procedure in `CONVENTIONS.md`.
+
+Hooks:
+- `SessionStart` runs `scripts/session-brief.sh`, which prints the current phase's item 1 from `00-product/roadmap.md` and the last three commits into the model's context. Wired in `.claude/settings.json` at the workspace root, above this repo. Removes the "where did we stop" round-trip at the start of every session.
 
 Subagents (context isolation, not roles): `researcher`, `code-reviewer`, `security-auditor`, `test-runner`, `visual-regression`, `magento-log-triage`.
 
