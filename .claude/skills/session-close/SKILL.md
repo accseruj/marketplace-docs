@@ -43,7 +43,7 @@ The queue is beads, not a markdown list (ADR-0008).
 
 - `bd close <id>` everything finished this session.
 - `bd create` everything the session discovered. A discovered task that stays in the chat is lost.
-- `bd dep add <id> --blocked-by <id>` wherever new work is genuinely gated on other work. An unrecorded dependency shows up as ready work that cannot actually start.
+- `bd dep add <id> --blocked-by <id>` wherever new work is genuinely gated on other work. An unrecorded dependency shows up as ready work that cannot actually start; a dependency set too coarsely hides work that can. See "Set the dependency at the level that actually depends" in `CONVENTIONS.md`.
 - Run `bd ready` and read it. Every line must be startable by someone who was not in this session; if a title only makes sense with today's context, rewrite it.
 
 - `bd dolt push`. **Required.** `.beads/` is gitignored except config, so `git push` carries no issues at all. Skipping this leaves the queue on one machine.

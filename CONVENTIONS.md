@@ -66,6 +66,8 @@ The obligation differs by what kind of statement it is. Corrected 2026-08-04: th
 - **Checks** - a check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick. Applies to checks this project writes for its own conventions; third-party tool behaviour is a claim about documentation, covered below.
 - **Facts copied from documentation** are claims about documentation. Cite the primary source or mark them unverified.
 
+The mechanical habit that catches this while writing rather than at review: never pipe something whose exit code you need. `python3 scripts/docs-check.py > out 2>&1; echo $?` - not `| tail`, which reports the exit code of `tail`. This rule was violated inside the commit that introduced it.
+
 ## Rejecting a finding is a decision, sometimes
 Not every rejected review finding needs a record - that generates its own sprawl. The test is consequence, not severity: **record the rejection when the rejection itself constrains future design.**
 
@@ -95,6 +97,8 @@ There is no hand-off document. A hand-off that lives outside the docs goes stale
 Run these four steps before ending any session:
 1. Every decision made in the session is recorded - as an ADR if it is architectural, otherwise as an edit to the living doc that owns the fact. Nothing stays only in the chat.
 2. Update beads: close what was finished (`bd close`), create what the session discovered, set the dependency if a new item is blocked. `bd ready` afterwards must show work that is genuinely startable. Then `bd dolt push` - `git push` does not carry issues (ADR-0008).
+
+   **Set the dependency at the level that actually depends.** When an issue covers several items and only one is gated, blocking the whole issue hides the rest - split it instead. A dependency that hides startable work is the same failure as the ordered list beads replaced, inverted: the list invented an order the work did not have, a coarse dependency invents a blocker the work does not have.
 3. Run `python3 scripts/docs-check.py`.
 4. Commit. The message states what was decided and why, not which files changed. When the work belongs to a beads issue, put its id in parentheses at the end of the subject line - `bd doctor` uses that to find issues that were worked on but never closed.
 
