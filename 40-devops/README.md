@@ -37,7 +37,7 @@ Skills to author in Phase -1 (these carry project conventions; they matter more 
 - `adr` - write an ADR in the project's MADR format.
 - `cwv-audit` - run Lighthouse/CrUX checks, thresholds, common regression causes.
 
-Also to author: `session-close` - automates the four-step procedure in `CONVENTIONS.md`.
+Authored: `session-close` - the four-step procedure in `CONVENTIONS.md`. Lives in `.claude/skills/session-close/` in this repo, symlinked into the workspace root so it loads from where Claude Code is launched.
 
 Hooks:
 - `SessionStart` runs `scripts/session-brief.sh`, which prints the current phase's item 1 from `00-product/roadmap.md` and the last three commits into the model's context. Wired in `.claude/settings.json` at the workspace root, above this repo. Removes the "where did we stop" round-trip at the start of every session.

@@ -24,7 +24,7 @@ The list below is the work queue in priority order - each item unblocks the ones
 6. **Fill `10-architecture/api-contracts/`** - the two supplier contracts first. The adapter contract must carry ADR-0007 labelling evidence as feed fields, not as paperwork.
 7. **Backend sizing inputs** - SKU count per supplier, expected traffic per tenant (`20-backend/README.md`).
 8. **PRD for the flagship storefront.**
-9. **Author the Claude Code skills** listed in `40-devops/README.md`, plus a session-close skill that automates the procedure in `CONVENTIONS.md`.
+9. **Author the remaining Claude Code skills** listed in `40-devops/README.md`. `session-close` is done; the six domain skills are not.
 
 - Exit gate: every VC stage has a named owner component, a defined contract, and an answered automation-readiness test.
 
