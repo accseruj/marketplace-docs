@@ -40,7 +40,9 @@ Skills to author in Phase -1 (these carry project conventions; they matter more 
 Authored: `session-close` - the four-step procedure in `CONVENTIONS.md`. Lives in `.claude/skills/session-close/` in this repo, symlinked into the workspace root so it loads from where Claude Code is launched.
 
 Hooks:
-- `SessionStart` runs `scripts/session-brief.sh`, which prints the current phase's item 1 from `00-product/roadmap.md` and the last three commits into the model's context. Wired in `.claude/settings.json` at the workspace root, above this repo. Removes the "where did we stop" round-trip at the start of every session.
+- `SessionStart` runs `scripts/session-brief.sh`, which prints `bd ready` and the last three commits into the model's context. Wired in `.claude/settings.json` at the workspace root, above this repo. Removes the "where did we stop" round-trip at the start of every session.
+
+Beads JSONL export is enabled in `.beads/config.yaml` (`export.auto: true`, `git-add: true`), writing `.beads/issues.jsonl`. That file is the only copy of the issue graph that git carries; the Dolt database is gitignored. Regenerate with `bd export -o .beads/issues.jsonl`.
 
 Project knowledge on claude.ai: connect this repo via "+" -> GitHub and select only `INDEX.md`, `CONVENTIONS.md`, `00-product/{vision,automation-charter,roadmap,market-selection}.md`, `10-architecture/{domain-model,c4-container}.md`, `60-decisions/*.md`. Refreshing is then one "Sync now" for everything. Never upload individual files - they go stale on the next edit. Everything outside that list is read on demand in Claude Code.
 
