@@ -3,7 +3,7 @@ doc: vision
 purpose: Why the project exists, the business model, what success is, what is out of scope.
 read_when: any product or prioritisation question
 status: draft
-updated: 2026-08-02
+updated: 2026-08-03
 related: [00-product/automation-charter.md, 00-product/roadmap.md]
 ---
 
@@ -26,7 +26,7 @@ A greenfield dropshipping platform: 10-20 niche storefronts on a single Magento 
 ## Success criteria
 - SC-01 10-20 storefronts live on one Magento instance, each with its own assortment, layout and UX flow.
 - SC-02 Core Web Vitals pass (field/CrUX) on every storefront: LCP < 2.5s, INP < 200ms, CLS < 0.1.
-- SC-03 Launching storefront N+1 is a configuration change measured in hours, not weeks.
+- SC-03 Launching storefront N+1 **inside an already-live market** is a configuration change measured in hours, not weeks. Entering a new country is not: EPR registration is per member state and per stream, and a non-established seller must appoint an Authorised Representative there. See `00-product/market-selection.md` HF-05.
 - SC-04 Total infrastructure cost scales sublinearly with storefront count.
 - SC-05 Onboarding a new supplier is a configuration + mapping task, not a code change.
 - SC-06 Oversell rate below a defined threshold. TODO(human): set the threshold.
@@ -54,9 +54,15 @@ These are inherent to dropshipping and must be designed for, not discovered late
 - Second Magento instance or catalog split.
 - Native mobile apps.
 
+## Launch shape (decided 2026-08-03)
+- First storefront targets one large EU country. Single market, single currency, single tax regime, one primary language.
+- 1-2 suppliers on the first vertical.
+- Mixed supplier channels: part REST/JSON API, part CSV/XML over SFTP. The adapter rule in `00-product/automation-charter.md` applies from day one.
+- Selection criteria for the first vertical, in no priority order: catalog complexity, operational risk, supplier maturity, organic competition. All four weigh equally.
+
 ## Open questions
-- OPEN: target markets/geographies per storefront, and therefore currency, tax and shipping scope.
-- OPEN: supplier count at launch, and per-supplier feed format and cadence.
-- OPEN: does any supplier support a real-time stock/price API, or is everything batch feeds? This changes the freshness architecture.
+- OPEN: which large EU country, and which vertical. Subject of the first-vertical research; the two are decided together.
+- OPEN: per-supplier feed cadence, and delta vs full-snapshot.
+- OPEN: whether the API-channel supplier exposes real-time stock/price or only a catalog endpoint. This changes the freshness architecture.
 - OPEN: who is the shipper of record on the parcel (operator branding vs supplier branding)?
 - OPEN: payment flow - does the operator pay suppliers per order, on account, or prepaid balance?

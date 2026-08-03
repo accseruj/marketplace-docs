@@ -3,7 +3,7 @@ doc: adr-0005
 purpose: Where canonical product data, supplier offers and matching live.
 read_when: BLOCKING - before any catalog, ingestion or ordering work
 status: draft
-updated: 2026-08-02
+updated: 2026-08-03
 ---
 
 # ADR-0005: Catalog data layer - dedicated service or Magento-native
@@ -26,11 +26,16 @@ The system is greenfield with no external PIM (INV-06). Something must own suppl
 ## Decision
 TODO(human): not yet decided.
 
+## Constraints already fixed
+- ADR-0006 is accepted: `CanonicalProduct` with many `SupplierOffer`s. Something must own both entities plus the matching and offer-selection stages before the first storefront goes live. Magento has no native concept of either.
+- Launch shape: 1-2 suppliers on the first vertical, mixed channels (REST/JSON API and CSV/XML over SFTP). Feed volume is therefore small at launch and is not by itself an argument for a dedicated service.
+- Magento `sku` is an opaque canonical id (ADR-0006 ID-01), so whichever component generates canonical ids is upstream of Magento by definition.
+
 ## Decision inputs needed
-- Expected SKU count per supplier and total.
-- Feed frequency and delta vs full-snapshot.
-- Whether several suppliers will offer the same item (if yes, matching is mandatory and pushes toward a dedicated service).
+- Expected SKU count per supplier and total. Blocked on the first-vertical research.
+- Feed frequency, and delta vs full-snapshot per channel.
 - How much manual enrichment the operator expects to do, and in what UI.
+- Whether the offer store must serve reads at storefront request time (freshness path, INV-09) or only feed a projection.
 
 ## Consequences
 To be filled on decision. Note that this ADR and ADR-0006 are coupled - decide them together.

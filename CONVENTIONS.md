@@ -3,7 +3,7 @@ doc: conventions
 purpose: Format rules for this repo. These rules exist to make ingestion by Claude cheap and unambiguous.
 read_when: before creating or editing any doc
 status: living
-updated: 2026-08-02
+updated: 2026-08-03
 ---
 
 # Conventions
@@ -72,7 +72,17 @@ Run at every phase gate, and whenever the routing table stops feeling obvious. A
 4. Affected docs updated in the same commit. A PR that changes behaviour and no docs is incomplete.
 5. If an architectural choice was made, an ADR exists.
 
-## Commit/PR hygiene (matters because Claude has no memory between sessions)
+## Session close (matters because Claude has no memory between sessions)
+There is no hand-off document. A hand-off that lives outside the docs goes stale the moment the docs change, and it duplicates state the routing table already owns. Everything a hand-off would say belongs in one of four places: an ADR, the living doc that owns the fact, the work queue, or the commit message.
+
+Run these four steps before ending any session:
+1. Every decision made in the session is recorded - as an ADR if it is architectural, otherwise as an edit to the living doc that owns the fact. Nothing stays only in the chat.
+2. Reorder `00-product/roadmap.md` so the next session's first action is item 1 of the current phase. Remove what is done; the queue carries open work only.
+3. Run `python3 scripts/docs-check.py`.
+4. Commit. The message states what was decided and why, not which files changed.
+
+Reconstruction, in order: `INDEX.md` for where things live, `00-product/roadmap.md` for what is next, `60-decisions/` for why, `git log` for when.
+
+## Commit/PR hygiene
 - Commit messages state intent, not diff summary.
-- Every PR links the PRD or ADR it implements.
-- Session hand-off notes go in the PR body, not in chat.
+- In code repos, every PR links the PRD or ADR it implements, and the session notes go in the PR body rather than a separate file.
