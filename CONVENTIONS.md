@@ -66,6 +66,8 @@ The obligation differs by what kind of statement it is. Corrected 2026-08-04: th
 - **Checks** - a check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick. Applies to checks this project writes for its own conventions; third-party tool behaviour is a claim about documentation, covered below.
 - **Facts copied from documentation** are claims about documentation. Cite the primary source or mark them unverified.
 
+**A collection task captures the union of what every live option needs, not what the current model asks for.** Otherwise the evidence confirms the current model by construction: you measured exactly what it requested. State the discriminating field or observation explicitly in the task, including the ones no current design uses. A falsifier that cannot separate its own hypothesis from a rival explanation is not a falsifier - naming one is the same failure as naming none, and harder to notice because the box looks ticked.
+
 The mechanical habit that catches this while writing rather than at review: never pipe something whose exit code you need. `python3 scripts/docs-check.py > out 2>&1; echo $?` - not `| tail`, which reports the exit code of `tail`. This rule was violated inside the commit that introduced it.
 
 ## Rejecting a finding is a decision, sometimes
