@@ -302,6 +302,7 @@ agent's instructions rather than implied to be covered."
 
 **Files:**
 - Create: `.claude/agents/drift-auditor.md`
+- Create: workspace-root symlink for the agent
 
 **Interfaces:**
 - Consumes: `scripts/drift-fixture.py` output format from Task 2.
@@ -361,12 +362,24 @@ Each finding carries:
 State counts only with the command that produced them. An unverified count is the failure mode this repository has measured eight times.
 ```
 
-- [ ] **Step 2: Verify the agent is registered**
+- [ ] **Step 2: Link the definition into the workspace root**
 
-Run: `ls -l .claude/agents/drift-auditor.md`
-Expected: the file exists. Agent definitions are picked up from `.claude/agents/`; confirm it appears in the available agent types on the next session start, and note if it does not.
+The agent is only dispatchable from where Claude Code is launched, which is the directory above this repo. That root is not a git repository (`bd` issue docs-nqk), so the definition lives here and is linked out - the mechanism already used for `session-close`.
 
-- [ ] **Step 3: Commit**
+```bash
+mkdir -p ../.claude/agents
+ln -sfn ../../docs/.claude/agents/drift-auditor.md ../.claude/agents/drift-auditor.md
+ls -l ../.claude/agents/
+```
+
+Expected: the link resolves. Task 4 dispatches this agent and cannot do so until this step has run.
+
+- [ ] **Step 3: Verify the agent is registered**
+
+Run: `ls -l .claude/agents/drift-auditor.md && ls -l ../.claude/agents/drift-auditor.md`
+Expected: both exist and the link resolves. Agent definitions are picked up from `.claude/agents/`; confirm it appears in the available agent types on the next session start, and note if it does not.
+
+- [ ] **Step 4: Commit**
 
 ```bash
 git add .claude/agents/drift-auditor.md
@@ -452,7 +465,7 @@ python3 scripts/drift-fixture.py /tmp/drift-fixture
 Then dispatch the agent against `/tmp/drift-fixture` and compare its findings to the `EXPECT` lines. Required after any edit to the agent's instructions.
 ```
 
-- [ ] **Step 2: Verify end to end against the fixture**
+- [ ] **Step 2: Verify end to end against the fixture** — *executed by the controller, not by an implementer subagent.* A subagent cannot dispatch another subagent; and the agent must be run by someone who did not write its instructions, or the acceptance test is self-review.
 
 Run:
 
@@ -481,7 +494,7 @@ closer to self-review than it looks."
 ### Task 5: Wire it in and remove the drift this task creates
 
 **Files:**
-- Create: workspace-root symlinks `../.claude/agents/drift-auditor.md` and `../.claude/skills/drift-audit`
+- Create: workspace-root symlink for the skill
 - Modify: `40-devops/README.md` (the Claude Code setup section)
 - Modify: `40-devops/drift-audit-spec.md` (path style)
 
@@ -489,18 +502,17 @@ closer to self-review than it looks."
 - Consumes: everything from Tasks 1–4.
 - Produces: nothing later depends on this.
 
-- [ ] **Step 1: Create the workspace-root symlinks**
+- [ ] **Step 1: Link the skill into the workspace root**
 
-The workspace root is not a git repository (`bd` issue docs-nqk), so definitions live in the repo and are linked out — the same mechanism already used for `session-close`.
+The agent link was created in Task 3. The skill needs the same treatment.
 
 ```bash
-mkdir -p ../.claude/agents
-ln -sfn ../../docs/.claude/agents/drift-auditor.md ../.claude/agents/drift-auditor.md
+mkdir -p ../.claude/skills
 ln -sfn ../../docs/.claude/skills/drift-audit ../.claude/skills/drift-audit
-ls -l ../.claude/agents/ ../.claude/skills/
+ls -l ../.claude/skills/
 ```
 
-Expected: both links resolve.
+Expected: the link resolves.
 
 - [ ] **Step 2: Fix the path style in the spec**
 
