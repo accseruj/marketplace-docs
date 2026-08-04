@@ -46,7 +46,7 @@ Beads JSONL export is enabled in `.beads/config.yaml` (`export.auto: true`, `git
 
 Project knowledge on claude.ai: connect this repo via "+" -> GitHub and select only `INDEX.md`, `CONVENTIONS.md`, `00-product/{vision,automation-charter,roadmap,market-selection}.md`, `10-architecture/{domain-model,c4-container}.md`, `60-decisions/*.md`. Refreshing is then one "Sync now" for everything. Never upload individual files - they go stale on the next edit. Everything outside that list is read on demand in Claude Code.
 
-Subagents (context isolation, not roles): `researcher`, `code-reviewer`, `security-auditor`, `test-runner`, `visual-regression`, `magento-log-triage`.
+Subagents (context isolation, not roles). Authored: `drift-auditor` - the recurring drift audit, see `40-devops/drift-audit-spec.md`. Planned, none yet written: `researcher`, `code-reviewer`, `security-auditor`, `test-runner`, `visual-regression`, `magento-log-triage`.
 
 Tools: bash (WSL/Docker/n98-magerun2) + GitHub baseline; Playwright and Cloudflare added when the phase needs them. Every added MCP server costs context before the first call.
 

@@ -36,7 +36,7 @@ Where `bd prime` and this repo's `CONVENTIONS.md` disagree on session close, `CO
 
 ## Subagent policy
 Delegate to a subagent only when the task reads a lot and returns little.
-- Use: `researcher`, `code-reviewer`, `security-auditor`, `test-runner`, `visual-regression`, `magento-log-triage`.
+- Roster (authored vs. planned, kept in one place): `40-devops/README.md`.
 - Do not use: role-shaped "developer" agents. Features are built in the main thread.
 
 ## Tool policy

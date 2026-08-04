@@ -57,13 +57,13 @@ Warning rather than error where the gap is owned: `TODO(human)` is this repo's e
 Sub-headings are avoided in this section: the `planned` link-check exemption in `scripts/docs-check.py` is reset by any `###`, because `###` also satisfies `startswith("##")`. Recorded as a defect against `bd` issue docs-8gf.
 
 **DA-03 Agent definition.**
-- Path: `docs/.claude/agents/drift-auditor.md`, symlinked into the workspace-root `.claude/agents/`. Same mechanism as the `session-close` skill, so the definition is versioned rather than living only in an unversioned workspace root (`bd` issue docs-nqk).
+- Path: `.claude/agents/drift-auditor.md`, symlinked into the workspace-root `.claude/agents/`. Same mechanism as the `session-close` skill, so the definition is versioned rather than living only in an unversioned workspace root (`bd` issue docs-nqk).
 - A subagent, not execution in the main thread. Justification is measured: a session that has been discussing the corpus recalls it instead of reading it, and recalls wrong exactly where it is wrong. A subagent starts cold. Cold reading is what produced all seven findings.
 - Input: the pair list above, the corpus, `git log`, and the `bd` graph.
 - Read-only by rule, not by mechanism. Omitting `Write` and `Edit` from the tool list signals the intent; `Bash` is unscoped and can write, so nothing enforces it. The definition states this plainly rather than claiming a barrier it does not have. Building the `PreToolUse` deny-hook that would enforce it is separate work.
 
 **DA-04 Skill and invocation.**
-- Path: `docs/.claude/skills/drift-audit/SKILL.md`, symlinked as above.
+- Path: `.claude/skills/drift-audit/SKILL.md`, symlinked as above.
 - Responsibility: spawn the agent, receive findings, write the report. The skill is the caller; the agent is the reader.
 
 **DA-05 Staleness reminder.**
@@ -78,7 +78,7 @@ Sub-headings are avoided in this section: the `planned` link-check exemption in 
 - **Coverage lines are mandatory.** The report states, per pair, that it was checked and what was found, including nothing. A pair silent for three months is either a clean corpus or a broken check, and without the coverage line those two states are indistinguishable. The 2026-08-04 audit omitted this and that is a defect in it.
 
 **DA-07 Self-test fixture.**
-- `scripts/drift-fixture.sh` copies the corpus to a temporary directory, injects one defect per covered pair, and prints the expected findings. Run on every change to the agent's instructions.
+- `scripts/drift-fixture.py` copies the corpus to a temporary directory, injects one defect per covered pair, and prints the expected findings. Run on every change to the agent's instructions.
 - Covered by fixture: PR-1, PR-3, PR-4, PR-6. All four are mechanical and unambiguous.
 - Not covered by fixture: PR-2, PR-5, PR-7. Stated as uncovered in the agent's instructions. Uncovered and labelled is not the same as a green tick.
 - This is the most expensive item in the build, and it is the item without which the agent is the thing this document was written to prevent.
@@ -90,7 +90,7 @@ Sub-headings are avoided in this section: the `planned` link-check exemption in 
 
 ## Acceptance criteria
 
-- AC-01 `scripts/drift-fixture.sh` runs, injects, and the agent reports every injected defect. Demonstrated, not asserted.
+- AC-01 `scripts/drift-fixture.py` runs, injects, and the agent reports every injected defect. Demonstrated, not asserted.
 - AC-02 A run against the unmodified corpus produces a report with a coverage line for all seven pairs.
 - AC-03 The agent creates no `bd` issue and modifies no file other than its own report.
 - AC-04 `session-brief.sh` prints the staleness line, verified by backdating a report file.
