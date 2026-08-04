@@ -226,6 +226,18 @@ CLOSED='{"id":"q-3","title":"done","issue_type":"task","status":"closed","descri
 d="$(mkfixture "$CLOSED" "")"
 if [ "$(code "$d")" != "0" ]; then echo "FAIL case 6: a closed issue was judged:"; run "$d"; fail=1; fi
 rm -rf "$d"
+
+# case 7 (WQ-C3): mentioning the phrase in prose is not a section
+PROSE='{"id":"q-5","title":"loose task","issue_type":"task","status":"open","description":"no acceptance criteria defined yet, TBD"}'
+d="$(mkfixture "$PROSE" "")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 7: a prose mention counted as a section"; fail=1; fi
+rm -rf "$d"
+
+# case 8 (WQ-C3): a real section opening a line passes
+REAL='{"id":"q-6","title":"loose task","issue_type":"task","status":"open","description":"context here\n\nAcceptance Criteria: the thing is observable"}'
+d="$(mkfixture "$REAL" "")"
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 8: a real section was rejected:"; run "$d"; fail=1; fi
+rm -rf "$d"
 ```
 
 - [ ] **Step 2: Run it to verify it fails**
@@ -254,10 +266,15 @@ def check_sections(issues):
             continue
         body = i.get("description") or ""
         for section in REQUIRED_SECTIONS.get(i.get("issue_type", ""), []):
-            if section.lower() not in body.lower():
+            # The section must open a line, as Task 5 writes it. A bare
+            # substring match passes on "no acceptance criteria yet, TBD",
+            # which is the state the check exists to catch.
+            if not re.search(rf"^\s*{re.escape(section)}\s*:", body, re.M | re.I):
                 errors.append(f"WQ-C3 {i['id']}: {i.get('issue_type')} is missing section '{section}'")
     return errors
 ```
+
+Add `re` to the imports if Task 1 did not already.
 
 Change the `errors` line in `main` to:
 

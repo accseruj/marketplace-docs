@@ -98,7 +98,7 @@ A rule stated here without an instrument is an obligation verified at review, an
 |---|---|---|
 | WQ-C1 | Every open non-gate issue that has a parent carries exactly one WQ-04 label | Add a second layer label to one issue; remove the label from one epic |
 | WQ-C2 | Phase headings in `00-product/roadmap.md` and phase epics agree on count and name | Add a phase heading to roadmap.md with no matching epic; rename one epic |
-| WQ-C3 | Every open issue carries the sections its type requires | Create an issue of type `task` with no Acceptance Criteria |
+| WQ-C3 | Every open issue carries the sections its type requires, each opening a line | Create an issue of type `task` with no Acceptance Criteria; and one whose description only mentions the phrase in prose |
 | WQ-C4 | No issue id appears in a commit subject while still open | Reference an open issue id in a commit subject and leave it open |
 
 - All four read `.beads/issues.jsonl` and `git log`. Neither invokes `bd`.
