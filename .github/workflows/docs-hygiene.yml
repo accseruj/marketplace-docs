@@ -12,4 +12,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 scripts/docs-check.py
+      # Three separate steps, not one script: a failure names which instrument
+      # broke. The two test suites ran only when someone remembered to run
+      # them, which is this project's own definition of a rule rather than an
+      # instrument - see 40-devops/drift-audit-spec.md, "Why this exists".
+      - name: docs hygiene check
+        run: python3 scripts/docs-check.py
+      - name: session-brief test suite
+        run: bash scripts/tests/test-session-brief.sh
+      - name: drift-fixture test suite
+        run: bash scripts/tests/test-drift-fixture.sh

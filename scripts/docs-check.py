@@ -122,7 +122,12 @@ for m in inv_line.finditer(inv_section):
     inv, body = m.group(1), m.group(2)
     if not re.search(r"Derived|derivation|See ADR-\d+", body):
         errors.append(f"INDEX.md: {inv} states a constraint with no derivation")
-    if not re.search(r"[Rr]evisit trigger", body) and "ADR-" not in body:
+    #    The `and "ADR-" not in body` this once carried made the check unable to
+    #    fire: the derivation check immediately above pushes bodies towards
+    #    naming an ADR, and every invariant that lacks a revisit trigger names
+    #    one. A check whose passing condition is produced by the check above it
+    #    is a green tick with nothing behind it.
+    if not re.search(r"[Rr]evisit trigger", body):
         warnings.append(f"INDEX.md: {inv} names no revisit trigger")
 
 asm_path = ROOT / "00-product" / "assumptions.md"

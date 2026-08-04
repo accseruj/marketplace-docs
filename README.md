@@ -20,7 +20,8 @@ Layout:
 Also here:
 ```
 scripts/docs-check.py   hygiene check — frontmatter, orphans, broken links, TODO/OPEN inventory
-.github/workflows/      runs the check on push, PR, and weekly
+scripts/tests/          test suites for the scripts, run in CI
+.github/workflows/      runs the hygiene check and both test suites on push, PR, and weekly
 .github/pull_request_template.md
 ```
 

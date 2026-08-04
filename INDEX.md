@@ -55,7 +55,7 @@ updated: 2026-08-04
 | 0008 | Work tracking - beads, replacing GitHub Issues and Projects | Accepted |
 
 ## Documentation health
-Living docs carry no history; `60-decisions/` is the history; git is the version record. Retirement rules and the hygiene checklist are in `CONVENTIONS.md`. Run `python3 scripts/docs-check.py` at every phase gate — it also runs in CI on push, PR and weekly.
+Living docs carry no history; `60-decisions/` is the history; git is the version record. Retirement rules and the hygiene checklist are in `CONVENTIONS.md`. Run `python3 scripts/docs-check.py` at every phase gate — it also runs in CI on push, PR and weekly, alongside the two test suites in `scripts/tests/`.
 
 ## Project invariants
 Constraints the project chose and will not violate. Changing one requires a new ADR. Each names where it was derived; an invariant with no derivation is an assumption in disguise and belongs in `00-product/assumptions.md`. These are commitments, not empirical claims - they cannot be falsified, only abandoned, so each carries a revisit trigger rather than a test. See `CONVENTIONS.md`, "Every asserted claim names its falsifier".
