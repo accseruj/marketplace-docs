@@ -43,6 +43,26 @@ def check_layers(issues):
             errors.append(f"WQ-C1 {i['id']}: has a parent but carries {len(found)} layer labels {found}")
     return errors
 
+# Mirrors `bd lint`'s requirements rather than calling it. Four lines of
+# duplication buys a check that runs where bd is not installed.
+REQUIRED_SECTIONS = {
+    "task": ["Acceptance Criteria"],
+    "feature": ["Acceptance Criteria"],
+    "bug": ["Steps to Reproduce", "Acceptance Criteria"],
+    "epic": ["Success Criteria"],
+}
+
+def check_sections(issues):
+    errors = []
+    for i in issues:
+        if i.get("status") == "closed":
+            continue
+        body = i.get("description") or ""
+        for section in REQUIRED_SECTIONS.get(i.get("issue_type", ""), []):
+            if section.lower() not in body.lower():
+                errors.append(f"WQ-C3 {i['id']}: {i.get('issue_type')} is missing section '{section}'")
+    return errors
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(pathlib.Path(__file__).resolve().parent.parent))
@@ -51,7 +71,7 @@ def main():
     root = pathlib.Path(args.root)
 
     issues = load_issues(root)
-    errors = check_layers(issues)
+    errors = check_layers(issues) + check_sections(issues)
 
     print(f"checked {len(issues)} issues\n")
     if errors:

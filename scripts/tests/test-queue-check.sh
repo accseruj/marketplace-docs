@@ -48,5 +48,18 @@ d="$(mkfixture "$LOOSE" "")"
 if [ "$(code "$d")" != "0" ]; then echo "FAIL case 4: parentless issue was required to carry a layer:"; run "$d"; fail=1; fi
 rm -rf "$d"
 
+# case 5 (WQ-C3): a task with no Acceptance Criteria fails
+NOAC='{"id":"q-2","title":"loose task","issue_type":"task","status":"open","description":"no sections here"}'
+d="$(mkfixture "$NOAC" "")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 5: missing Acceptance Criteria did not fail"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "WQ-C3" <<<"$out"; then echo "FAIL case 5: error is not attributed to WQ-C3"; fail=1; fi
+rm -rf "$d"
+
+# case 6 (WQ-C3): a closed issue is not judged on sections
+CLOSED='{"id":"q-3","title":"done","issue_type":"task","status":"closed","description":"no sections here"}'
+d="$(mkfixture "$CLOSED" "")"
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 6: a closed issue was judged:"; run "$d"; fail=1; fi
+rm -rf "$d"
+
 [ "$fail" = "0" ] && echo "queue-check tests: ok"
 exit "$fail"
