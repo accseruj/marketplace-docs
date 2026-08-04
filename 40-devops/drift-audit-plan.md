@@ -191,6 +191,17 @@ grep -q "prints the current phase's item 1" "$TMP/corpus/40-devops/README.md" \
 grep -q "Every table must be alphabetised" "$TMP/corpus/CONVENTIONS.md" \
   || { echo "FAIL PR-6: uninstrumented rule not injected"; fail=1; }
 
+# the answer key must not travel with the copy
+[ -e "$TMP/corpus/.superpowers" ] && { echo "FAIL: .superpowers copied into the fixture"; fail=1; }
+[ -e "$TMP/corpus/40-devops/drift-audit-plan.md" ] && { echo "FAIL: the plan quotes every injection and must not be copied"; fail=1; }
+[ -e "$TMP/corpus/40-devops/drift-audit-spec.md" ] && { echo "FAIL: the spec must not be copied"; fail=1; }
+grep -rq "EXPECT PR-" "$TMP/corpus" && { echo "FAIL: EXPECT lines are readable inside the fixture"; fail=1; }
+
+# the guard must refuse a destructive target
+if python3 scripts/drift-fixture.py . >/dev/null 2>&1; then
+  echo "FAIL: fixture did not refuse to build inside the corpus"; fail=1
+fi
+
 # the original corpus must be untouched
 git diff --quiet || { echo "FAIL: fixture modified the real corpus"; fail=1; }
 
@@ -226,6 +237,36 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
+# Never copied into a fixture, and why. The reason is data: an entry without
+# one cannot be added.
+#   dot-prefixed names - tooling, not corpus. `.superpowers/` holds the SDD
+#                        briefs, which name every injection in plain text.
+#   __pycache__        - build artefact.
+#   ANSWER_KEY         - the two drift-audit documents quote this file's source
+#                        verbatim, so copying them hands the agent under test
+#                        its own answers. Excluding them costs nothing: a
+#                        fixture run grades the agent, it does not audit the
+#                        corpus.
+ANSWER_KEY = {
+    "40-devops/drift-audit-plan.md",
+    "40-devops/drift-audit-spec.md",
+}
+
+
+def _ignore(directory, names):
+    root = ROOT.resolve()
+    here = pathlib.Path(directory).resolve()
+    ignored = set()
+    for name in names:
+        if name.startswith(".") or name == "__pycache__":
+            ignored.add(name)
+            continue
+        rel_path = (here / name).relative_to(root).as_posix()
+        if rel_path in ANSWER_KEY or rel_path == "scripts":
+            ignored.add(name)
+    return ignored
+
+
 def inject(path, old, new, pair, description):
     text = path.read_text(encoding="utf-8")
     if old not in text:
@@ -238,12 +279,13 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("usage: drift-fixture.py <target_dir>")
     target = pathlib.Path(sys.argv[1])
+    root = ROOT.resolve()
+    resolved = target.resolve()
+    if resolved == root or root in resolved.parents:
+        sys.exit(f"refusing to build a fixture inside the corpus: {resolved}")
     if target.exists():
         shutil.rmtree(target)
-    shutil.copytree(
-        ROOT, target,
-        ignore=shutil.ignore_patterns(".git", ".beads", "__pycache__"),
-    )
+    shutil.copytree(ROOT, target, ignore=_ignore)
 
     # PR-1 doc vs mechanism: describe session-brief.sh doing what it no longer does
     inject(
