@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verifies scripts/queue-check.py against injected violations. Run from the docs repo root.
-set -u
+set -uo pipefail
 DOCS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 fail=0
 
@@ -32,7 +32,7 @@ TWO='{"id":"q-1.1","title":"child","issue_type":"task","status":"open","labels":
 d="$(mkfixture "$EPIC
 $TWO" "## Phase 0 - Platform skeleton")"
 if [ "$(code "$d")" = "0" ]; then echo "FAIL case 2: two layer labels did not fail"; fail=1; fi
-if ! run "$d" | grep -q "WQ-C1"; then echo "FAIL case 2: error is not attributed to WQ-C1"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "WQ-C1" <<<"$out"; then echo "FAIL case 2: error is not attributed to WQ-C1"; fail=1; fi
 rm -rf "$d"
 
 # case 3 (WQ-C1): a child carrying no layer label fails
