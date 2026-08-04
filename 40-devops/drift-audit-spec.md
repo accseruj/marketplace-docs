@@ -33,7 +33,7 @@ The auditor receives this fixed list. It does not receive "find problems". A fix
 |---|---|---|---|
 | PR-1 | Doc ↔ mechanism | A sentence describing what a script, config or workflow does, against what it does | `40-devops` hook description; JSONL export asserted but disabled |
 | PR-2 | Doc ↔ doc | One fact stated in two files, now divergent | The seven duplications in AUD-12 |
-| PR-3 | ID reference ↔ ID definition | Every `INV`/`ADR`/`ASM`/`VC`/`SC`/`HF`/`REG`/`MC`/`SM`/`RB` citation resolves, and means what it is cited for | ADR-0001 and ADR-0003 citing INV-05 where INV-07 is meant |
+| PR-3 | ID reference ↔ ID definition | Every ID citation resolves to a definition and means what it is cited for. The prefix list is owned by `.claude/agents/drift-auditor.md` and is not restated here | ADR-0001 and ADR-0003 citing INV-05 where INV-07 is meant |
 | PR-4 | Decision status across surfaces | ADR frontmatter ↔ ADR body ↔ the decision index in `INDEX.md` | ADR-0003 and ADR-0005 carry two vocabularies across three places |
 | PR-5 | Doc ↔ queue | Issues citing docs; closed issues whose stated close reason is in no file; findings marked dispositioned while the contradiction is live | New. The queue began citing the corpus and the corpus the queue |
 | PR-6 | Rule ↔ instrument | Every rule section in `CONVENTIONS.md` either has a check or is registered as not mechanisable | The 8-rules-to-0-checks imbalance |

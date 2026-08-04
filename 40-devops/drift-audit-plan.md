@@ -494,9 +494,9 @@ It receives seven pairs that must agree, not a request to find problems. A
 fixed list makes the output falsifiable, a miss attributable to a named pair,
 and a new failure type an added row rather than a new rule.
 
-Its read-only prohibition is enforced by the tool list, not by an instruction
-telling it not to write. A rule is checked at review; a mechanism fires while
-acting, and that distinction is the whole reason this agent exists."
+Its read-only status is a rule it follows, not a barrier: Bash is unscoped, so
+omitting Write and Edit signals the intent without enforcing it. The definition
+says so rather than claiming a wall it does not have."
 ```
 
 ---
