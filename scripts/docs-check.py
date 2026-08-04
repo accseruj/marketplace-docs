@@ -30,10 +30,14 @@ def parse_frontmatter(text):
             fm[k.strip()] = v.strip()
     return fm
 
-# .claude holds Claude Code skills and settings. They are tooling config, not
-# documentation: their frontmatter follows the agent-skill schema, not this
-# repo's, and they are reached by the agent runtime rather than by INDEX.md.
-SKIP_DIRS = {".git", ".github", ".claude", ".beads"}
+# Dot-directories are tooling, not documentation: .git, .github, .claude,
+# .beads, .superpowers. Their markdown follows a runtime's schema rather than
+# this repo's, and it is reached by that runtime rather than by INDEX.md.
+# The rule is the leading dot, not a list of names. A named list has to be
+# extended for every tool added, and the check breaks - silently on the orphan
+# rule, loudly on frontmatter - until someone notices. See bd issue docs-8gf.
+def is_tooling_path(path):
+    return any(part.startswith(".") for part in path.parts)
 
 # Files whose .md references are legitimately allowed to dangle.
 # The reason is data, not a comment: an entry without one cannot be added.
@@ -51,7 +55,7 @@ for _pat, _reason in NO_LINK_CHECK.items():
 def link_check_exempt(rel):
     return any(re.fullmatch(pat, rel) for pat in NO_LINK_CHECK)
 
-md_files = sorted(p for p in ROOT.rglob("*.md") if not SKIP_DIRS & set(p.parts))
+md_files = sorted(p for p in ROOT.rglob("*.md") if not is_tooling_path(p.relative_to(ROOT)))
 index_text = (ROOT / "INDEX.md").read_text(encoding="utf-8")
 
 for p in md_files:
