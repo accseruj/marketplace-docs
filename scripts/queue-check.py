@@ -8,7 +8,7 @@ installs Python only, and a check that shells out to a missing binary is a
 green tick with nothing behind it.
 Exit code 1 on any error.
 """
-import argparse, json, pathlib, re, sys
+import argparse, json, pathlib, re, subprocess, sys
 
 LAYERS = frozenset({"infrastructure", "frontend", "backend",
                     "catalog", "feeds", "sourcing", "product"})
@@ -66,6 +66,25 @@ def check_sections(issues):
                 errors.append(f"WQ-C3 {i['id']}: {i.get('issue_type')} is missing section '{section}'")
     return errors
 
+def commit_subjects(root, subjects_file):
+    if subjects_file:
+        return pathlib.Path(subjects_file).read_text(encoding="utf-8").splitlines()
+    try:
+        out = subprocess.run(["git", "-C", str(root), "log", "--format=%s"],
+                             capture_output=True, text=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return []          # no git history reachable: nothing to check, not an error
+    return out.stdout.splitlines()
+
+def check_orphans(issues, subjects):
+    open_ids = {i["id"] for i in issues if i.get("status") != "closed"}
+    errors = []
+    for subject in subjects:
+        for ref in re.findall(r"\(([a-z0-9]+-[a-z0-9.]+)\)", subject):
+            if ref in open_ids:
+                errors.append(f"WQ-C4 {ref}: named in a commit subject but still open - {subject[:60]!r}")
+    return errors
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(pathlib.Path(__file__).resolve().parent.parent))
@@ -74,7 +93,8 @@ def main():
     root = pathlib.Path(args.root)
 
     issues = load_issues(root)
-    errors = check_layers(issues) + check_sections(issues)
+    subjects = commit_subjects(root, args.subjects_file)
+    errors = check_layers(issues) + check_sections(issues) + check_orphans(issues, subjects)
 
     print(f"checked {len(issues)} issues\n")
     if errors:

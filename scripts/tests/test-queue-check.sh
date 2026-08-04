@@ -73,5 +73,20 @@ d="$(mkfixture "$REAL" "")"
 if [ "$(code "$d")" != "0" ]; then echo "FAIL case 8: a real section was rejected:"; run "$d"; fail=1; fi
 rm -rf "$d"
 
+# case 9 (WQ-C4): an open issue named in a commit subject fails
+OPEN_ISSUE='{"id":"q-4","title":"open work","issue_type":"chore","status":"open","description":"x"}'
+d="$(mkfixture "$OPEN_ISSUE" "")"
+echo "do the thing (q-4)" > "$d/subjects.txt"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 9: open issue in a commit subject did not fail"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "WQ-C4" <<<"$out"; then echo "FAIL case 9: error is not attributed to WQ-C4"; fail=1; fi
+rm -rf "$d"
+
+# case 10 (WQ-C4): the same subject against a closed issue passes
+CLOSED_ISSUE='{"id":"q-4","title":"open work","issue_type":"chore","status":"closed","description":"x"}'
+d="$(mkfixture "$CLOSED_ISSUE" "")"
+echo "do the thing (q-4)" > "$d/subjects.txt"
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 10: a closed issue was reported as an orphan:"; run "$d"; fail=1; fi
+rm -rf "$d"
+
 [ "$fail" = "0" ] && echo "queue-check tests: ok"
 exit "$fail"
