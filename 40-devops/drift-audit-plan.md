@@ -72,13 +72,25 @@ if ! grep -q "Drift audit: last run $old (45 days ago) - overdue" <<<"$out"; the
   echo "FAIL case 2: expected overdue line for $old, got:"; echo "$out"; fail=1
 fi
 
-# case 3: an audit 5 days old prints nothing
+# case 3: an audit 31 days old is overdue - the boundary is strictly greater than 30
 rm -f audit-*.md
-new="$(python3 -c "import datetime;print((datetime.date.today()-datetime.timedelta(days=5)).isoformat())")"
-printf -- '---\ndoc: x\n---\n' > "audit-$new.md"
+d31="$(python3 -c "import datetime;print((datetime.date.today()-datetime.timedelta(days=31)).isoformat())")"
+printf -- '---\ndoc: x\n---\n' > "audit-$d31.md"
+out="$(bash scripts/session-brief.sh 2>/dev/null)"
+if ! grep -q "Drift audit: last run $d31 (31 days ago) - overdue" <<<"$out"; then
+  echo "FAIL case 3: expected overdue at 31 days, got:"; echo "$out"; fail=1
+fi
+
+# case 4: exactly 30 days is not overdue, and the brief still ran to completion
+rm -f audit-*.md
+d30="$(python3 -c "import datetime;print((datetime.date.today()-datetime.timedelta(days=30)).isoformat())")"
+printf -- '---\ndoc: x\n---\n' > "audit-$d30.md"
 out="$(bash scripts/session-brief.sh 2>/dev/null)"
 if grep -q "Drift audit" <<<"$out"; then
-  echo "FAIL case 3: expected silence for a 5-day-old audit, got:"; echo "$out"; fail=1
+  echo "FAIL case 4: expected no overdue line at exactly 30 days, got:"; echo "$out"; fail=1
+fi
+if ! grep -q "Read order:" <<<"$out"; then
+  echo "FAIL case 4: the brief did not run to completion"; fail=1
 fi
 
 [ "$fail" -eq 0 ] && echo "ok"
@@ -90,7 +102,7 @@ Make it executable: `chmod +x scripts/tests/test-session-brief.sh`
 - [ ] **Step 2: Run the test to verify it fails**
 
 Run: `bash scripts/tests/test-session-brief.sh; echo "exit=$?"`
-Expected: `FAIL case 1` and `FAIL case 2` printed, `exit=1`.
+Expected: `FAIL case 1`, `FAIL case 2` and `FAIL case 3` printed, `exit=1`.
 Do not pipe this into `head` or `tail` — the exit code you need is the script's, and a pipe reports the last command's. This trap is recorded in `CONVENTIONS.md`.
 
 - [ ] **Step 3: Write the minimal implementation**
