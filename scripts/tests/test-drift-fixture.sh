@@ -28,6 +28,12 @@ grep -q "Every table must be alphabetised" "$TMP/corpus/CONVENTIONS.md" \
 [ -e "$TMP/corpus/40-devops/drift-audit-spec.md" ] && { echo "FAIL: the spec must not be copied"; fail=1; }
 grep -rq "EXPECT PR-" "$TMP/corpus" && { echo "FAIL: EXPECT lines are readable inside the fixture"; fail=1; }
 
+# the evidence each pair needs must survive the copy
+for needed in scripts/session-brief.sh scripts/docs-check.py; do
+  [ -f "$TMP/corpus/$needed" ] || { echo "FAIL: $needed missing from the copy; a pair becomes undetectable"; fail=1; }
+done
+ls "$TMP/corpus"/audit-*.md >/dev/null 2>&1 && { echo "FAIL: an audit report was copied; AUD-14 quotes an injection verbatim"; fail=1; }
+
 # the guard must refuse a destructive target
 if python3 scripts/drift-fixture.py . >/dev/null 2>&1; then
   echo "FAIL: fixture did not refuse to build inside the corpus"; fail=1

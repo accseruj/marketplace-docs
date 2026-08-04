@@ -8,6 +8,7 @@ the copy and must report every EXPECT line. A pair with no injection here is
 uncovered, and the agent's instructions say so rather than implying coverage.
 """
 import pathlib
+import re
 import shutil
 import sys
 
@@ -27,6 +28,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 ANSWER_KEY = {
     "40-devops/drift-audit-plan.md",
     "40-devops/drift-audit-spec.md",
+    "scripts/drift-fixture.py",
+    "scripts/tests/test-drift-fixture.sh",
 }
 
 
@@ -39,7 +42,9 @@ def _ignore(directory, names):
             ignored.add(name)
             continue
         rel_path = (here / name).relative_to(root).as_posix()
-        if rel_path in ANSWER_KEY or rel_path == "scripts":
+        if rel_path in ANSWER_KEY:
+            ignored.add(name)
+        if re.fullmatch(r"audit-\d{4}-\d{2}-\d{2}\.md", name) and here == root:
             ignored.add(name)
     return ignored
 
@@ -50,6 +55,38 @@ def inject(path, old, new, pair, description):
         sys.exit(f"fixture is stale: anchor not found in {path.name}: {old!r}")
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
     print(f"EXPECT {pair} {path.name} {description}")
+
+
+# Strings that only exist in the corpus because this fixture put them there.
+# If one is readable anywhere except the file it was injected into, the copy
+# hands the agent under test an answer it did not have to find.
+# PR-4 has no entry: its injected value is `status: draft`, which legitimately
+# occurs throughout the corpus. That pair is not covered by this check, and
+# saying so is the point - an uncovered case named is not the same as a
+# covered one.
+LEAK_NEEDLES = {
+    "prints the current phase's item 1": "40-devops/README.md",
+    "INV-99": "60-decisions/ADR-0001-storefront-stack.md",
+    "Every table must be alphabetised": "CONVENTIONS.md",
+}
+
+
+def assert_no_leak(target):
+    problems = []
+    for needle, injected_into in LEAK_NEEDLES.items():
+        for path in sorted(target.rglob("*")):
+            if not path.is_file():
+                continue
+            rel = path.relative_to(target).as_posix()
+            if rel == injected_into:
+                continue
+            try:
+                if needle in path.read_text(encoding="utf-8"):
+                    problems.append(f"{needle!r} is readable in {rel}")
+            except (UnicodeDecodeError, OSError):
+                continue
+    if problems:
+        sys.exit("fixture leaks its own answers:\n  " + "\n  ".join(problems))
 
 
 def main():
@@ -100,6 +137,8 @@ def main():
         "PR-6",
         "adds a rule with no check in docs-check.py and no not-mechanisable note",
     )
+
+    assert_no_leak(target)
 
 
 if __name__ == "__main__":
