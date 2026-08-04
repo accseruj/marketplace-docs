@@ -61,5 +61,17 @@ d="$(mkfixture "$CLOSED" "")"
 if [ "$(code "$d")" != "0" ]; then echo "FAIL case 6: a closed issue was judged:"; run "$d"; fail=1; fi
 rm -rf "$d"
 
+# case 7 (WQ-C3): mentioning the phrase in prose is not a section
+PROSE='{"id":"q-5","title":"loose task","issue_type":"task","status":"open","description":"no acceptance criteria defined yet, TBD"}'
+d="$(mkfixture "$PROSE" "")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 7: a prose mention counted as a section"; fail=1; fi
+rm -rf "$d"
+
+# case 8 (WQ-C3): a real section opening a line passes
+REAL='{"id":"q-6","title":"loose task","issue_type":"task","status":"open","description":"context here\n\nAcceptance Criteria: the thing is observable"}'
+d="$(mkfixture "$REAL" "")"
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 8: a real section was rejected:"; run "$d"; fail=1; fi
+rm -rf "$d"
+
 [ "$fail" = "0" ] && echo "queue-check tests: ok"
 exit "$fail"

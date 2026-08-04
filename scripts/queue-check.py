@@ -8,7 +8,7 @@ installs Python only, and a check that shells out to a missing binary is a
 green tick with nothing behind it.
 Exit code 1 on any error.
 """
-import argparse, json, pathlib, sys
+import argparse, json, pathlib, re, sys
 
 LAYERS = frozenset({"infrastructure", "frontend", "backend",
                     "catalog", "feeds", "sourcing", "product"})
@@ -59,7 +59,10 @@ def check_sections(issues):
             continue
         body = i.get("description") or ""
         for section in REQUIRED_SECTIONS.get(i.get("issue_type", ""), []):
-            if section.lower() not in body.lower():
+            # The section must open a line, as Task 5 writes it. A bare
+            # substring match passes on "no acceptance criteria yet, TBD",
+            # which is the state the check exists to catch.
+            if not re.search(rf"^\s*{re.escape(section)}\s*:", body, re.M | re.I):
                 errors.append(f"WQ-C3 {i['id']}: {i.get('issue_type')} is missing section '{section}'")
     return errors
 
