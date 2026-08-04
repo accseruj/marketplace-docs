@@ -71,7 +71,7 @@ This section no longer relies on the `planned` link-check exemption in `scripts/
 - Responsibility: spawn the agent, receive findings, write the report. The skill is the caller; the agent is the reader.
 
 **DA-05 Staleness reminder.**
-- `scripts/session-brief.sh` finds the newest `audit-*.md` in the repo root, computes its age in days, and prints it when older than 30. Prints "never run" when none exists.
+- `scripts/session-brief.sh` filters `audit-*.md` in the repo root to the dated form `audit-<YYYY-MM-DD>.md` (the glob expands in lexicographic order and ISO dates sort chronologically, so the last match is the newest), computes that file's age in days, and prints it when older than 30. Prints "never run" when no dated form exists. A filename matching `audit-*.md` but not the dated form - audit-draft.md, say - is named on stdout as unparseable rather than silently dropped or let stand in for the newest report.
 - Visible, not enforcing. A scheduled run firing while the operator is not working produces a report nobody opens; a line in the session brief appears exactly when he is about to work.
 - No escalation mechanism. The day count grows on its own and that is the escalation.
 
@@ -82,7 +82,9 @@ This section no longer relies on the `planned` link-check exemption in `scripts/
 - **Coverage lines are mandatory.** The report states, per pair, that it was checked and what was found, including nothing. A pair silent for three months is either a clean corpus or a broken check, and without the coverage line those two states are indistinguishable. The 2026-08-04 audit omitted this and that is a defect in it.
 
 **DA-07 Self-test fixture.**
-- `scripts/drift-fixture.py` copies the corpus to a temporary directory, injects one defect per covered pair, and prints the expected findings. Run on every change to the agent's instructions.
+- `scripts/drift-fixture.py` copies the corpus to a target directory, injects one defect per covered pair, and prints one `EXPECT` line per injection. Run on every change to the agent's instructions.
+- The target is guarded before anything is deleted. `check_target()` refuses the corpus itself, any path containing or contained by it, `$HOME`, and the filesystem root - `..` from the docs root reaches the whole workspace and is the shape a typo produces. `clear_target()` then refuses to delete an existing target unless it is empty or carries the `.drift-fixture` sentinel a prior run wrote; a non-empty directory without the sentinel was not built by this script and is left alone.
+- After the `EXPECT` lines, the script prints a NOISE manifest naming every class of false positive its own exclusions manufacture - files it does not copy (dot-directories, the answer key) and routing rows it repairs so the copy stays clean under `docs-check.py`. A reader of a fixture run uses the manifest to tell a fixture artefact from an agent regression.
 - Covered by fixture: PR-1, PR-3, PR-4, PR-6. All four are mechanical and unambiguous.
 - Not covered by fixture: PR-2, PR-5, PR-7. Stated as uncovered in the agent's instructions. Uncovered and labelled is not the same as a green tick.
 - This is the most expensive item in the build, and it is the item without which the agent is the thing this document was written to prevent.

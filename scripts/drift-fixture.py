@@ -84,18 +84,25 @@ def check_target(target):
 
 
 def clear_target(resolved):
-    """Delete a previous fixture. Anything without the sentinel is not one."""
+    """Delete a previous fixture. Refuse anything with content this script didn't build.
+
+    An empty directory has nothing to protect, so it needs no sentinel - and
+    `/tmp/drift-fixture`, the exact path the skill and the plan instruct the
+    operator to run against, is exactly that shape the first time it is used.
+    Anything non-empty must carry the sentinel or be left alone.
+    """
     if not resolved.exists():
         return
     if not resolved.is_dir():
         sys.exit(f"refusing to delete {resolved}: not a directory")
-    if not (resolved / SENTINEL).exists():
-        sys.exit(
-            f"refusing to delete {resolved}: no {SENTINEL} sentinel, so this "
-            "directory was not built by drift-fixture.py. Pick an empty target "
-            "or remove it by hand."
-        )
-    shutil.rmtree(resolved)
+    if (resolved / SENTINEL).exists() or not any(resolved.iterdir()):
+        shutil.rmtree(resolved)
+        return
+    sys.exit(
+        f"refusing to delete {resolved}: not empty and no {SENTINEL} sentinel, "
+        "so this directory was not built by drift-fixture.py. Point at an empty "
+        "directory, or empty this one by hand, and rerun."
+    )
 
 
 def inject(path, old, new, pair, description):

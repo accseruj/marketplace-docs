@@ -49,21 +49,58 @@ grep -q "broken reference" "$TMP/dc.out" \
   && { echo "FAIL: the fixture leaves broken references in the copy:"; grep "broken reference" "$TMP/dc.out"; fail=1; }
 [ "$dc" -eq 0 ] || { echo "FAIL: docs-check.py exits $dc inside the copy; see errors above"; sed -n '/^ERRORS/,/^$/p' "$TMP/dc.out"; fail=1; }
 
-# the guard must refuse a destructive target. Descendants, the corpus itself,
-# ancestors and $HOME - `..` is the shape that reached rmtree before, and it is
-# the shape typed elsewhere in this repo.
-for bad in . .. "$HOME"; do
-  if python3 scripts/drift-fixture.py "$bad" >/dev/null 2>&1; then
-    echo "FAIL: fixture did not refuse the destructive target '$bad'"; fail=1
-  fi
-done
+# the guard must refuse a destructive target: descendants, the corpus itself,
+# ancestors, $HOME and the filesystem root - `..` is the shape that reached
+# rmtree before, and it is the shape typed elsewhere in this repo. Checked as a
+# pure function, never by invoking the script against these paths: the script
+# deletes its target, so running it against '.', '..', "$HOME" or '/' to prove
+# it refuses them would - the moment the guard being tested ever regressed -
+# destroy the developer's real working directory, its parent, home, or the
+# whole filesystem. importlib loads check_target() without running main(), so
+# no rmtree is reachable no matter what the function decides.
+if ! guard_out="$(python3 - <<'PYEOF'
+import importlib.util
+import pathlib
+import sys
 
-# an existing directory this script did not build must not be deleted
+spec = importlib.util.spec_from_file_location("drift_fixture", "scripts/drift-fixture.py")
+drift_fixture = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(drift_fixture)
+
+dangerous = [".", "..", str(pathlib.Path.home()), "/"]
+not_refused = []
+for p in dangerous:
+    try:
+        drift_fixture.check_target(pathlib.Path(p))
+        not_refused.append(p)
+    except SystemExit:
+        pass
+
+if not_refused:
+    print("did not raise SystemExit for: " + ", ".join(not_refused))
+    sys.exit(1)
+PYEOF
+)"; then
+  echo "FAIL: check_target() did not refuse a dangerous path: $guard_out"; fail=1
+fi
+
+# an existing directory this script did not build must not be deleted - the one
+# end-to-end invocation that exercises a refusal, and it is safe because
+# "$TMP/not-a-fixture" is a throwaway directory, not a real ancestor.
 mkdir -p "$TMP/not-a-fixture" && : > "$TMP/not-a-fixture/keepme"
 if python3 scripts/drift-fixture.py "$TMP/not-a-fixture" >/dev/null 2>&1; then
   echo "FAIL: fixture overwrote a directory carrying no sentinel"; fail=1
 fi
 [ -f "$TMP/not-a-fixture/keepme" ] || { echo "FAIL: fixture deleted a directory it did not build"; fail=1; }
+
+# an existing EMPTY directory carries no sentinel but has nothing to protect,
+# and is exactly the shape /tmp/drift-fixture is in the first time the
+# documented invocation runs - it must be accepted, not refused.
+mkdir -p "$TMP/empty-target"
+if ! python3 scripts/drift-fixture.py "$TMP/empty-target" >/dev/null 2>&1; then
+  echo "FAIL: fixture refused an existing empty directory"; fail=1
+fi
+[ -f "$TMP/empty-target/.drift-fixture" ] || { echo "FAIL: fixture did not build into the accepted empty directory"; fail=1; }
 
 # a directory it did build carries the sentinel and may be rebuilt over
 [ -f "$TMP/corpus/.drift-fixture" ] || { echo "FAIL: no sentinel written into the fixture"; fail=1; }
