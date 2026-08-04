@@ -22,6 +22,17 @@ grep -q "prints the current phase's item 1" "$TMP/corpus/40-devops/README.md" \
 grep -q "Every table must be alphabetised" "$TMP/corpus/CONVENTIONS.md" \
   || { echo "FAIL PR-6: uninstrumented rule not injected"; fail=1; }
 
+# the answer key must not travel with the copy
+[ -e "$TMP/corpus/.superpowers" ] && { echo "FAIL: .superpowers copied into the fixture"; fail=1; }
+[ -e "$TMP/corpus/40-devops/drift-audit-plan.md" ] && { echo "FAIL: the plan quotes every injection and must not be copied"; fail=1; }
+[ -e "$TMP/corpus/40-devops/drift-audit-spec.md" ] && { echo "FAIL: the spec must not be copied"; fail=1; }
+grep -rq "EXPECT PR-" "$TMP/corpus" && { echo "FAIL: EXPECT lines are readable inside the fixture"; fail=1; }
+
+# the guard must refuse a destructive target
+if python3 scripts/drift-fixture.py . >/dev/null 2>&1; then
+  echo "FAIL: fixture did not refuse to build inside the corpus"; fail=1
+fi
+
 # the original corpus must be untouched
 git diff --quiet || { echo "FAIL: fixture modified the real corpus"; fail=1; }
 
