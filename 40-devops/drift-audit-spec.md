@@ -60,7 +60,7 @@ Sub-headings are avoided in this section: the `planned` link-check exemption in 
 - Path: `docs/.claude/agents/drift-auditor.md`, symlinked into the workspace-root `.claude/agents/`. Same mechanism as the `session-close` skill, so the definition is versioned rather than living only in an unversioned workspace root (`bd` issue docs-nqk).
 - A subagent, not execution in the main thread. Justification is measured: a session that has been discussing the corpus recalls it instead of reading it, and recalls wrong exactly where it is wrong. A subagent starts cold. Cold reading is what produced all seven findings.
 - Input: the pair list above, the corpus, `git log`, and the `bd` graph.
-- Prohibited: creating or modifying `bd` issues; editing any doc; committing.
+- Read-only by rule, not by mechanism. Omitting `Write` and `Edit` from the tool list signals the intent; `Bash` is unscoped and can write, so nothing enforces it. The definition states this plainly rather than claiming a barrier it does not have. Building the `PreToolUse` deny-hook that would enforce it is separate work.
 
 **DA-04 Skill and invocation.**
 - Path: `docs/.claude/skills/drift-audit/SKILL.md`, symlinked as above.
