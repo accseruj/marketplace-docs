@@ -9,11 +9,13 @@ related: [CONVENTIONS.md, 40-devops/README.md, 00-product/assumptions.md]
 
 # Drift audit - design
 
-Status: design approved 2026-08-04. Checks DA-01 and DA-02 delivered in `49a624d`. Everything else is unimplemented.
+Status: design approved 2026-08-04, and built. DA-01 and DA-02 delivered in `49a624d`; DA-03 through DA-07 delivered on the same branch as this line - the agent, the skill, the report format, the staleness line and the fixture all exist and are covered by `scripts/tests/`. DA-08 is deferred and is the only item not built.
 
 ## Why this exists
 
-Measured, not assumed. Over 2026-08-02..04 seven cases were recorded in which a stated rule, or a property asserted about a tool, was contradicted by the repository state at the moment of writing. Six were found by a session that had not written them. The seventh was found by its author, and only because the test was mechanical - an injected violation read by exit code - rather than a rereading.
+**This section owns the count. Every other document links here rather than restating a figure; an unverified count restated in three places is itself the failure this project measured.**
+
+Measured, not assumed. **Seven cases**, recorded 2026-08-02..04, in which a stated rule, or a property asserted about a tool, was contradicted by the repository state at the moment of writing. Method: each case was written down with the file and line of both sides when it was found; the number is the length of that record, not an estimate or a recollection. Six were found by a session that had not written them. The seventh was found by its author, and only because the test was mechanical - an injected violation read by exit code - rather than a rereading.
 
 Second measurement over the same period: `CONVENTIONS.md` went from 8 sections to 11, one of them carrying eight new rules, while `scripts/docs-check.py` stayed at four checks - all from the original skeleton. Rules grew, instruments did not.
 
@@ -43,22 +45,24 @@ PR-8, contract doc ↔ implementation, is added when code repositories exist. No
 
 **The list must shrink, not grow.** PR-1..PR-6 are progressively mechanisable and move out of the agent into `scripts/docs-check.py` as they are. PR-7 is the only one that requires judgement and is the reason an agent exists at all. The healthy end state is an agent with two pairs and a checker with twelve checks, not the reverse.
 
-## Delivered
+## Delivered - checks in `scripts/docs-check.py`
 
-- DA-01 Every `INV-nn` in the `INDEX.md` declaration list carries a derivation - error if absent - and a revisit trigger - warning if absent. Delivered `49a624d`.
+- DA-01 Every `INV-nn` in the `INDEX.md` declaration list carries a derivation - error if absent - and a revisit trigger - warning if absent. Delivered `49a624d`. The revisit-trigger half self-exempted anything naming an ADR and therefore fired on nothing until that clause was dropped; it now warns on INV-02, INV-07, INV-10 and INV-11.
 - DA-02 Every `ASM-nn` in `00-product/assumptions.md` carries a falsifier - error if absent, warning if incomplete (no threshold, or "none exists"). Delivered `49a624d`.
 
 Both were verified by injecting a violation and reading the exit code. The first implementation of DA-01 silently caught nothing - a missing `re.M` - and only the injected violation revealed it. Record that method; reading the output would have passed.
 
 Warning rather than error where the gap is owned: `TODO(human)` is this repo's established way to hold an open question, and a permanently red check teaches its reader to ignore it.
 
-## Planned - not yet built
+## Delivered - the audit mechanism
 
-Sub-headings are avoided in this section: the `planned` link-check exemption in `scripts/docs-check.py` is reset by any `###`, because `###` also satisfies `startswith("##")`. Recorded as a defect against `bd` issue docs-8gf.
+All five shipped on the branch that carries this line. Each item states what exists, not what was intended.
+
+This section no longer relies on the `planned` link-check exemption in `scripts/docs-check.py`, and that is deliberate: the word `planned` in a heading disables the link check for everything under it, so a section named for work not yet done also stops anyone noticing when its references break. Renaming it surfaced one - a filename *pattern* read as a filename - now written as `audit-<YYYY-MM-DD>.md`, which the checker skips by the `<` rule rather than by a heading. The `###`-resets-the-exemption defect stays recorded against `bd` issue docs-8gf; sub-headings are simply no longer constrained here.
 
 **DA-03 Agent definition.**
 - Path: `.claude/agents/drift-auditor.md`, symlinked into the workspace-root `.claude/agents/`. Same mechanism as the `session-close` skill, so the definition is versioned rather than living only in an unversioned workspace root (`bd` issue docs-nqk).
-- A subagent, not execution in the main thread. Justification is measured: a session that has been discussing the corpus recalls it instead of reading it, and recalls wrong exactly where it is wrong. A subagent starts cold. Cold reading is what produced all seven findings.
+- A subagent, not execution in the main thread. Justification is measured: a session that has been discussing the corpus recalls it instead of reading it, and recalls wrong exactly where it is wrong. A subagent starts cold. Cold reading produced six of the seven cases counted in "Why this exists"; the seventh came from a mechanical test, and nothing produced it by rereading.
 - Input: the pair list above, the corpus, `git log`, and the `bd` graph.
 - Read-only by rule, not by mechanism. Omitting `Write` and `Edit` from the tool list signals the intent; `Bash` is unscoped and can write, so nothing enforces it. The definition states this plainly rather than claiming a barrier it does not have. Building the `PreToolUse` deny-hook that would enforce it is separate work.
 
@@ -72,7 +76,7 @@ Sub-headings are avoided in this section: the `planned` link-check exemption in 
 - No escalation mechanism. The day count grows on its own and that is the escalation.
 
 **DA-06 Report format.**
-- Path: `audit-YYYY-MM-DD.md` in the repo root. Reuses the existing `NO_LINK_CHECK` exemption; does not introduce a second naming mechanism. Audit type is stated in frontmatter, not in the filename.
+- Path: `audit-<YYYY-MM-DD>.md` in the repo root. Reuses the existing `NO_LINK_CHECK` exemption; does not introduce a second naming mechanism. Audit type is stated in frontmatter, not in the filename. `scripts/session-brief.sh` ages only this exact form and names anything else it finds, so a report the pattern cannot parse is visible rather than silently unaged.
 - Per finding: pair id, `VERIFIED` or `JUDGEMENT`, `file:line`, a reproduction command, and the `CONVENTIONS.md` rejection-record criterion applied.
 - Per finding, additionally: `same-commit` or `cross-commit` - both sides of the contradiction introduced together, or apart. This is the instrument for DA-08.
 - **Coverage lines are mandatory.** The report states, per pair, that it was checked and what was found, including nothing. A pair silent for three months is either a clean corpus or a broken check, and without the coverage line those two states are indistinguishable. The 2026-08-04 audit omitted this and that is a defect in it.
@@ -83,8 +87,10 @@ Sub-headings are avoided in this section: the `planned` link-check exemption in 
 - Not covered by fixture: PR-2, PR-5, PR-7. Stated as uncovered in the agent's instructions. Uncovered and labelled is not the same as a green tick.
 - This is the most expensive item in the build, and it is the item without which the agent is the thing this document was written to prevent.
 
-**DA-08 Deferred - per-commit review agent.**
-- Not built. Decided 2026-08-04 on capacity grounds (AUD-05, `bd` issue docs-npe).
+## Deferred - not built
+
+**DA-08 Per-commit review agent.**
+- Not built, and the only item in this document that is not. Decided 2026-08-04 on capacity grounds (AUD-05, `bd` issue docs-npe).
 - Falsifier: a drift audit reporting a `same-commit` finding is evidence a diff-time reviewer would have caught it, and that this tier is needed. DA-06 carries the tag for exactly this purpose.
 - At least three of the seven were same-commit and are named rather than counted: the ASM-03 falsifier stated two lines above the confound that voids it; ASM-01's falsifier with no threshold; the INV-05 citations in ADR-0001 and ADR-0003. The expected answer is therefore that this tier will be needed. It is deferred, not rejected.
 

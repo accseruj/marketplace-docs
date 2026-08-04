@@ -179,10 +179,11 @@ def repair_references(target):
     for rel, old, new, why in PROSE_REPAIRS:
         path = target / rel
         text = path.read_text(encoding="utf-8")
-        if old not in text:
+        count = text.count(old)
+        if not count:
             sys.exit(f"fixture is stale: repair anchor not found in {rel}: {old!r}")
-        path.write_text(text.replace(old, new, 1), encoding="utf-8")
-        removed.append(f"{rel}: {why}")
+        path.write_text(text.replace(old, new), encoding="utf-8")
+        removed.append(f"{rel}: {why} (x{count})")
     return removed
 
 

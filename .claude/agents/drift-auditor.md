@@ -50,4 +50,4 @@ Each finding carries:
 - **Introduced** — `same-commit` or `cross-commit`. Determine it; do not guess. Take a distinctive literal string from each side of the disagreement and run `git log -S'<string>' --oneline -- <path of that side>` for each. The same commit hash on both sides is `same-commit`. If either string is too common to give a short result, write `undetermined` and list the commands you ran.
 - **Rejection** — `records-a-decision` if rejecting this finding would constrain future design, `preference` otherwise. Per `CONVENTIONS.md`, only the first kind needs a written rejection.
 
-State counts only with the command that produced them. An unverified count is the failure mode this repository has measured eight times.
+State counts only with the command that produced them. An unverified count is the failure mode this repository measured and counted; the count, its date range and its method live in `40-devops/drift-audit-spec.md`, "Why this exists". Link to that section rather than restating a number - this sentence carried a different figure from the one the spec records, which is the defect it forbids.

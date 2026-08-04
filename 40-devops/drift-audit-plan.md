@@ -17,6 +17,8 @@ related: [40-devops/drift-audit-spec.md, CONVENTIONS.md]
 
 **Tech Stack:** Python 3.12 (matching `scripts/docs-check.py` and the CI workflow), POSIX shell, Claude Code agent and skill markdown.
 
+**Status: executed.** Every task below is built. The code blocks are the as-planned text and are not maintained against the files - the files are authoritative and have since gained a destructive-target guard, a noise manifest and two more test cases. Read this document for why a thing was built, never for what it currently does.
+
 ## Global Constraints
 
 - All docs are English. Conversation with the operator is Russian. (`CONVENTIONS.md`)
@@ -464,7 +466,7 @@ Each finding carries:
 - **Introduced** — `same-commit` or `cross-commit`. Determine it; do not guess. Take a distinctive literal string from each side of the disagreement and run `git log -S'<string>' --oneline -- <path of that side>` for each. The same commit hash on both sides is `same-commit`. If either string is too common to give a short result, write `undetermined` and list the commands you ran.
 - **Rejection** — `records-a-decision` if rejecting this finding would constrain future design, `preference` otherwise. Per `CONVENTIONS.md`, only the first kind needs a written rejection.
 
-State counts only with the command that produced them. An unverified count is the failure mode this repository has measured eight times.
+State counts only with the command that produced them. An unverified count is the failure mode this repository measured and counted; the count, its date range and its method live in `40-devops/drift-audit-spec.md`, "Why this exists". Link to that section rather than restating a number - this sentence carried a different figure from the one the spec records, which is the defect it forbids.
 ```
 
 - [ ] **Step 2: Link the definition into the workspace root**
@@ -589,9 +591,9 @@ git add .claude/skills/drift-audit/SKILL.md
 git commit -m "add the drift-audit skill; verify the auditor against injected defects
 
 The skill passes the agent no framing - not a summary of the corpus, not what
-it expects to be found. Seven of eight measured rule violations were caught by
-a reader who had not written the thing; a reviewer briefed by its author is
-closer to self-review than it looks."
+it expects to be found. Most of the cases counted in the spec's "Why this
+exists" were caught by a reader who had not written the thing; a reviewer
+briefed by its author is closer to self-review than it looks."
 ```
 
 ---
