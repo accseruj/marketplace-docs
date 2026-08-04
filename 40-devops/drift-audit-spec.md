@@ -100,4 +100,4 @@ Sub-headings are avoided in this section: the `planned` link-check exemption in 
 
 - OPEN: whether PR-6 is mechanisable now. It requires a registry of which `CONVENTIONS.md` rules are deliberately not mechanisable; that registry does not exist and creating it is itself the useful half of the work.
 - OPEN: cost per run is unmeasured. Measure on the first run before committing to a cadence; 30 days is a starting assumption, not a finding.
-- OPEN: six subagents are named as current policy in `CLAUDE.md` and `40-devops/README.md` and none exists. This spec creates the first real one, which makes that discrepancy actionable - define them or reframe them as planned.
+- Settled 2026-08-04: the six subagents named in `CLAUDE.md` and `40-devops/README.md` were current policy while none existed and none could be checked. Authoring `drift-auditor` made the claim checkable and false. The roster now has one owner and separates authored from planned. Whether the six planned agents are ever written is a separate decision and is not open here.

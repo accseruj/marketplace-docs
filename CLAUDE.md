@@ -3,7 +3,7 @@ doc: claude-docs-repo
 purpose: Operating rules for Claude inside the docs repo.
 read_when: session start in this repo
 status: living
-updated: 2026-08-02
+updated: 2026-08-04
 ---
 
 # Operating rules — docs repo

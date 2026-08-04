@@ -3,7 +3,7 @@ doc: devops-index
 purpose: Environments, CI/CD, hosting, monitoring, and the Claude Code tooling setup.
 read_when: infrastructure, deployment or tooling work
 status: draft
-updated: 2026-08-03
+updated: 2026-08-04
 related: [60-decisions/ADR-0003-hosting-platform.md]
 ---
 
