@@ -90,5 +90,18 @@ out="$(run "$d")"
 if grep -q "WQ-C4" <<<"$out"; then echo "FAIL case 10: a closed issue was reported as an orphan"; fail=1; fi
 rm -rf "$d"
 
+# case 11 (WQ-C2): a roadmap phase with no epic fails
+d="$(mkfixture "$EPIC" "## Phase 0 - Platform skeleton
+
+## Phase 1 - Flagship storefront to production")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 11: a phase with no epic did not fail"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "WQ-C2" <<<"$out"; then echo "FAIL case 11: error is not attributed to WQ-C2"; fail=1; fi
+rm -rf "$d"
+
+# case 12 (WQ-C2): the '(current)' marker is not part of the name
+d="$(mkfixture "$EPIC" "## Phase 0 - Platform skeleton (current)")"
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 12: '(current)' was treated as part of the phase name:"; run "$d"; fail=1; fi
+rm -rf "$d"
+
 [ "$fail" = "0" ] && echo "queue-check tests: ok"
 exit "$fail"

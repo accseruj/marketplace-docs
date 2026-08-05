@@ -3,6 +3,7 @@
 
 Enforces 40-devops/work-queue-spec.md:
   WQ-C1  every issue with a parent carries exactly one layer label (error)
+  WQ-C2  every roadmap phase has a matching phase epic (error)
   WQ-C3  every open issue has required sections in its description (error)
   WQ-C4  every open issue named in a commit subject (warning)
 Reads .beads/issues.jsonl, which is tracked in git. Never invokes bd: CI
@@ -68,6 +69,26 @@ def check_sections(issues):
                 errors.append(f"WQ-C3 {i['id']}: {i.get('issue_type')} is missing section '{section}'")
     return errors
 
+def phase_headings(roadmap_text):
+    names = []
+    for line in roadmap_text.splitlines():
+        m = re.match(r"^##\s+(Phase\s.+?)\s*$", line)
+        if m:
+            names.append(re.sub(r"\s*\(current\)\s*$", "", m.group(1)))
+    return names
+
+def check_phases(issues, roadmap_text):
+    wanted = phase_headings(roadmap_text)
+    have = {i["title"].strip() for i in issues
+            if i.get("issue_type") == "epic" and i.get("title", "").startswith("Phase ")}
+    errors = []
+    for name in wanted:
+        if name not in have:
+            errors.append(f"WQ-C2 roadmap phase {name!r} has no epic with that exact title")
+    for title in sorted(have - set(wanted)):
+        errors.append(f"WQ-C2 phase epic {title!r} matches no roadmap heading")
+    return errors
+
 def commit_subjects(root, subjects_file):
     if subjects_file:
         return pathlib.Path(subjects_file).read_text(encoding="utf-8").splitlines()
@@ -96,7 +117,9 @@ def main():
 
     issues = load_issues(root)
     subjects = commit_subjects(root, args.subjects_file)
-    errors = check_layers(issues) + check_sections(issues)
+    roadmap = root / "00-product" / "roadmap.md"
+    roadmap_text = roadmap.read_text(encoding="utf-8") if roadmap.exists() else ""
+    errors = check_layers(issues) + check_sections(issues) + check_phases(issues, roadmap_text)
     warnings = check_orphans(issues, subjects)
 
     print(f"checked {len(issues)} issues\n")
