@@ -110,7 +110,7 @@ Run these four steps before ending any session:
 2. Update beads: close what was finished (`bd close`), create what the session discovered, set the dependency if a new item is blocked. `bd ready` afterwards must show work that is genuinely startable. Then `bd dolt push` - `git push` does not carry issues (ADR-0008).
 
    **Set the dependency at the level that actually depends.** When an issue covers several items and only one is gated, blocking the whole issue hides the rest - split it instead. A dependency that hides startable work is the same failure as the ordered list beads replaced, inverted: the list invented an order the work did not have, a coarse dependency invents a blocker the work does not have.
-3. Run `python3 scripts/docs-check.py`.
+3. Run `bd export -o .beads/issues.jsonl`, then `python3 scripts/docs-check.py` and `python3 scripts/queue-check.py`. Neither check may be piped - a pipe reports the exit code of the last stage. The export step is not optional: `bd update` writes the Dolt database, while the checks read the exported file, and `export.interval` in `.beads/config.yaml` is 60s - without the explicit export, a check run straight after a batch of updates reads the queue as it was a minute ago.
 4. Commit. The message states what was decided and why, not which files changed. When the work belongs to a beads issue, put its id in parentheses at the end of the subject line - `bd doctor` uses that to find issues that were worked on but never closed.
 
 Reconstruction, in order: `INDEX.md` for where things live, `bd ready` for what is next, `60-decisions/` for why, `git log` for when. `00-product/roadmap.md` carries phases and exit gates, never the queue.

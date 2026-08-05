@@ -18,6 +18,10 @@ jobs:
       # instrument - see 40-devops/drift-audit-spec.md, "Why this exists".
       - name: docs hygiene check
         run: python3 scripts/docs-check.py
+      - name: work-queue check
+        run: python3 scripts/queue-check.py
+      - name: queue-check test suite
+        run: bash scripts/tests/test-queue-check.sh
       - name: session-brief test suite
         run: bash scripts/tests/test-session-brief.sh
       - name: drift-fixture test suite
