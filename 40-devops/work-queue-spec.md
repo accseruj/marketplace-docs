@@ -74,10 +74,12 @@ graph LR
   P0 -.children.-> C1[issue] & C2[issue]
 ```
 
-### WQ-06 Exit gates are gate issues
-- `bd gate create --type=human --blocks <next phase epic> --reason "<phase> exit gate"`, one per transition.
-- A gate blocks like any blocker and is hidden from `bd list` by default, so an exit gate stops being prose and starts holding the frontier without adding queue noise.
-- `--type=gh:pr` and timer gates exist and are evaluated by `bd gate check`. Not used yet: no CI condition currently gates a phase.
+### WQ-06 Exit gates are gate issues — WITHDRAWN 2026-08-05
+- Not implementable in `bd` 1.0.5, and not needed. Both established by attempting it.
+- The tool refuses: `bd dep add <phase epic> <gate> --type blocks` returns `Error: epics can only block other epics, not tasks`. A gate is typed `gate`, a phase is typed `epic`, so no gate can block a phase. `bd gate create --blocks <epic>` fails the same way.
+- Also observed: a gate's title is `Gate: <type>`, never derived from `--reason`, so the exit-gate wording would not have been visible on the gate at all.
+- Withdrawn rather than worked around, because the epic-to-epic chain in WQ-05 already does the job: the next phase opens when the previous phase epic is closed, and closing it is the human confirmation a gate would have asked for. A gate would add a second object requiring a second manual act for the same decision.
+- What is lost: nothing mechanical. What a gate would have added over closing the epic is an explicit record that the exit criteria were reviewed. That record lives in the phase epic's own `Success Criteria` and in `00-product/roadmap.md`.
 
 ### WQ-07 Repeated work becomes a formula, after it has been done once
 - Phase 2 and Phase 3 instantiate the same work graph per tenant and per supplier.

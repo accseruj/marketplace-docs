@@ -672,7 +672,11 @@ git commit -m "give the queue a phase graph, so bd ready stops answering with ev
 
 ---
 
-### Task 7: Exit gates (WQ-06)
+### Task 7: Exit gates (WQ-06) — WITHDRAWN 2026-08-05, not executed
+
+Attempting it established that `bd` 1.0.5 forbids it: `Error: epics can only block other epics, not tasks`, because a gate is typed `gate` and a phase is typed `epic`. The steps below are kept as the record of what was tried, not as work to do. See the spec's WQ-06 entry for why it was withdrawn rather than worked around — the epic-to-epic chain already holds each phase, and closing a phase epic is the same human act a gate would have required.
+
+The steps below are not executed.
 
 **Files:**
 - Modify: the beads database and the regenerated `.beads/issues.jsonl`
