@@ -3,7 +3,7 @@ doc: conventions
 purpose: Format rules for this repo. These rules exist to make ingestion by Claude cheap and unambiguous.
 read_when: before creating or editing any doc
 status: living
-updated: 2026-08-04
+updated: 2026-08-05
 ---
 
 # Conventions
@@ -65,6 +65,7 @@ The obligation differs by what kind of statement it is. Corrected 2026-08-04: th
 - **Commitments** - boundaries, roles, the business model. INV-04, INV-05 and INV-11 cannot be falsified; they can only be abandoned. Naming one obliges you to name where it was derived and what would make the project revisit it.
 - **Checks** - a check that enforces a rule must be shown to fail on a violation of that rule. An untested check is a false negative wearing a green tick. Applies to checks this project writes for its own conventions; third-party tool behaviour is a claim about documentation, covered below.
 - **Facts copied from documentation** are claims about documentation. Cite the primary source or mark them unverified.
+- **Facts about a third party** - a company, a supplier, a product - are claims about whoever stated them. A search-result summary describes a search result, not its subject. Take the fact from the party's own artefact: its page, its contract, its sitemap, an archive snapshot. Added 2026-08-05, after a supplier survey classified a scooter-parts wholesaler as an ijzerwaren wholesaler by adopting a description that belonged to a different company in the same result set, and presented two suppliers as usable when one was bankrupt and the other had been offline since 2022. Neither error was visible in the prose, because a plausible sentence about a bankrupt supplier reads exactly like a true one. Where the verification repeats, ship it as an instrument rather than an intention - `scripts/supplier-probe.py` and its offline test are the worked example.
 
 **A collection task captures the union of what every live option needs, not what the current model asks for.** Otherwise the evidence confirms the current model by construction: you measured exactly what it requested. State the discriminating field or observation explicitly in the task, including the ones no current design uses.
 

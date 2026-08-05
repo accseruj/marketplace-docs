@@ -87,7 +87,7 @@ MC-04 is the one criterion this research cannot settle from public sources. Orga
 
 - Required before committing: keyword-level competition analysis for two or three concrete segments in Dutch, with search volume, top-10 domain strength, and whether bol.com and the incumbent DIY chains hold the head terms.
 - Required before committing: two or three named NL-warehoused distributors in the chosen segment, with a sample feed actually retrieved and inspected. That inspection also produces the ADR-0005 sizing inputs (SKU count, delta vs full snapshot, cadence) and the ADR-0006 identifier-quality answer.
-- Partially done 2026-08-05, desk research only: four named candidates, their published fees and contract terms, and a measured catalogue in `10-architecture/supplier-landscape.md`. No feed retrieved, so cadence and delta-vs-snapshot remain unanswered. That survey corrects two claims below - see SL-30 and SL-31.
+- Partially done 2026-08-05, desk research only: fifteen named candidates with their liveness verified, published reseller terms, one full dropship contract and a measured catalogue, in `10-architecture/supplier-landscape.md`. No feed retrieved, so cadence, delta-vs-snapshot and the real field list remain unanswered - and no supplier in this vertical publishes a dropship programme to sign up to, so obtaining one is a negotiation (SL-35). That survey qualifies two claims below - see SL-30 and SL-31.
 
 ## OPEN
 - OPEN: which segment inside hand tools and workshop consumables. Needs the keyword analysis above.
