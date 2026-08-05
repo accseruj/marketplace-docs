@@ -1,6 +1,6 @@
 ---
 doc: supplier-landscape
-purpose: What named NL dropship suppliers in the fastening and hand-tool vertical actually publish - fees, feed formats, identifier quality - measured rather than assumed.
+purpose: What named NL suppliers in the fastening and hand-tool vertical actually publish - reseller terms, fees, feed formats, identifier quality - verified rather than assumed.
 read_when: before deciding ADR-0005, ADR-0006, sourcing scope, or returns policy; before contacting a supplier
 status: draft
 updated: 2026-08-05
@@ -15,12 +15,16 @@ Desk research only. No supplier account was held and no feed file was retrieved;
 - Catalogue counts: `curl -s https://www.wovar.nl/sitemap.xml`, then count `<loc>` in the child sitemaps.
 - Identifier coverage: fetch product pages, read the `EAN code` row of `table.spec-table`, or the Apollo blob keys `WVR1_ERP_EAN_code` / `WVR1_Generaldata_Barcode_1`.
 - Contract terms: the PDF cited in SUP-01, extracted with `pdftotext -layout -enc UTF-8`.
-- Trading status: a live site can be down without meaning anything. Bracket it against `https://web.archive.org/cdx/search/cdx?url=<host>&fl=timestamp,original,statuscode`, then read the two snapshots either side of the change.
+- Trading status: `python3 scripts/supplier-probe.py --probe <host>...`. It reports DNS, HTTP status on both schemes, certificate expiry, the live `<title>` and the last archived `<title>`, and classifies the host. It deliberately does not infer what a supplier sells - see below.
+- A SUSPECT verdict means read the archived title, then open the site in a real browser. Bot protection and a dead host look identical to `curl`: `vertools.nl` answers 403 to every automated request and loads normally in a browser after a Cloudflare interstitial that clears itself.
 - Sampling was seeded (`random.seed(20260805)`), so the same 40 URLs are reproducible from the sitemap.
 
 **Do not read `itemProp="gtin13"` from the microdata.** It belongs to the related-products carousel and always renders `content="-"`. Reading it produces 0% EAN coverage on a catalogue that in fact carries 98%. This false negative was produced and caught on 2026-08-05.
 
-## Candidates
+**Take a supplier's vertical from the supplier's own page, never from a search-result summary.** The first version of this file classified SUP-01 from a description that belonged to a different company in the same result set. `scripts/supplier-probe.py` reports titles verbatim and classifies only liveness for this reason.
+
+## Round 1 - suppliers that advertise dropshipping
+Searched by the term "dropshipping". That framing is what produced the wrong answer; round 2 corrects it.
 
 | ID | Supplier | Vertical fit | Dropship programme | Feed | Status observed 2026-08-05 |
 |---|---|---|---|---|---|
@@ -29,10 +33,31 @@ Desk research only. No supplier account was held and no feed file was retrieved;
 | SUP-03 | Drobbs / `dropshipspecialist.nl` | Partial - broad home and garden, tools a slice | Yes | CSV, XML, API | Live |
 | SUP-04 | `gereedschapdropshipping.nl` | **Best on paper** - tools, workshop, PPE, consumables | Was a real programme | product list with descriptions, images, article codes | **Defunct.** Last archive capture 2022-01-23; TLS certificate expired 2024-10-10 and never renewed; HTTP 403 on every path |
 
-**Both suppliers that published a dropship programme in or near this vertical are dead.** SUP-01 is bankrupt and was never in this vertical anyway; SUP-04 was exactly the right supplier and has not been captured by the Internet Archive since January 2022, with a certificate unrenewed since October 2024. What survives is SUP-02, which has the assortment and no dropship programme, and SUP-03, which has the programme and a slice of the assortment.
+Both suppliers that published a dropship programme in or near this vertical are dead. SUP-01 is bankrupt and was never in this vertical anyway; SUP-04 has not been archived since January 2022 with a certificate unrenewed since October 2024.
 
-- SL-33 **Desk research found no live dropship supplier in NL hand tools and fastening.** Two existed and both failed. This does not prove none exists - only dropship-branded suppliers were searched, not the wholesale arms of established ijzerwaren distributors, which is where SUP-02 sits. But it is the opposite of the "strong EU distributor base" that `00-product/market-selection.md` assumes for this vertical, and it was found in one session of public searching. *Falsifier: one live NL supplier in this vertical with a dropship programme and a feed - which is what `bd` issue docs-sru.1 exists to find.*
-- SL-34 **A dropship programme is a business that can fail, not an infrastructure that persists.** Two of four candidates died inside four years, one of them between two monthly crawls. Supplier onboarding cost is therefore recurring, not one-off, and SC-05's "supplier N+1 is configuration" is load-bearing for survival rather than for growth. Check trading status before every supplier decision, not once. *Falsifier: a five-year survival rate for NL dropship suppliers materially better than the 2-of-4 seen here; this sample is too small to carry the rate itself, only the mechanism.*
+## Round 2 - wholesalers in the vertical, whatever they call themselves
+Searched by what they sell rather than by how they sell it, and every host verified with `scripts/supplier-probe.py` before anything was written about it. Eleven live NL wholesalers in fastening and hand tools, none of which round 1 surfaced.
+
+| ID | Supplier | What its own page says | Reseller offer as published | Verdict |
+|---|---|---|---|---|
+| SUP-05 | `wovar.nl` (= SUP-02) | Fastening, hardware, hand tools; 6.704 product URLs | Business account; pallet wholesale; project quotes | LIVE |
+| SUP-06 | `vertools.nl` | "Specialist in bevestigingsmaterialen", ~15.000 articles, A-brands | none published | LIVE, behind Cloudflare |
+| SUP-07 | `schroevengroothandel.nl` | "Meer dan 8000 soorten" screws, warehouse Heiloo | Business account, valid btw-id required, free-shipping floor EUR 90 | LIVE |
+| SUP-08 | `schroevenkopen.nl` / `bevestigingspartner.nl` (M&B Bevestigingsmaterialen, since 1995) | Fastening for construction, industry, installation | Wholesale in full pallets and bulk only; "wij regelen de volledige import" | LIVE |
+| SUP-09 | `schroevenland.nl` | Screw specialist; runs Magento | Business page, no programme published | LIVE |
+| SUP-10 | `dkhgroothandel.nl` | "Groot in bevestigingsmaterialen" | none published | LIVE |
+| SUP-11 | `wemekamp-groothandel.nl` | Fastening and tools | none published | LIVE |
+| SUP-12 | `marree.nl` | Technische groothandel, Harderwijk | Account registration | LIVE |
+| SUP-13 | `ijzerwarenmiddennederland.nl` | Professional tools and machines since 2004 | none published | LIVE |
+| SUP-14 | `ijzerwarenunie.nl` | B2B purchasing platform, construction and industry | B2B platform | LIVE |
+| SUP-15 | `mastermate.nl` | Technical wholesale; B2B eshop at `eshop.mastermate.nl` | Login-gated B2B shop | LIVE |
+
+- SL-33 **Rewritten 2026-08-05 after round 2. The vertical has depth; what it lacks is the dropship-with-feed model.** Eleven live NL wholesalers in fastening and hand tools were verified, so the "strong EU distributor base" in `00-product/market-selection.md` is supported. Not one of them publishes a dropshipping programme. Every reseller offer found is the same shape: a business account with trade pricing, or bulk and pallet wholesale delivered to the reseller's own warehouse. The first version of this line said no supplier existed, which was an artefact of searching for the word "dropshipping" rather than for the trade. *Falsifier: an NL wholesaler in this vertical that publishes a dropship programme with a product feed - one such supplier changes the plan from "negotiate" to "sign up".*
+- SL-34 **A dropship programme is a business that can fail, not an infrastructure that persists.** Two of the four round-1 candidates died inside four years, one of them between two monthly crawls. Supplier onboarding cost is therefore recurring, not one-off, and SC-05's "supplier N+1 is configuration" is load-bearing for survival rather than for growth. Check trading status before every supplier decision, not once. *Falsifier: a five-year survival rate for NL dropship suppliers materially better than the 2-of-4 seen here; this sample is too small to carry the rate itself, only the mechanism.*
+- SL-35 **The launch supplier will have to be negotiated, not selected.** No published programme means the first supplier relationship is a conversation about dropshipping with a wholesaler that does not advertise one, not a signup form. That changes what Phase -1 must produce - a supplier willing to ship to the end customer on the operator's behalf and to expose a feed - and it is a commercial task with a lead time, not a research task. *Falsifier: SL-33's falsifier; a published programme removes the negotiation.*
+- SL-36 **Matchable identifiers depend on the supplier's brand model, not on the vertical.** SUP-05 is own-brand throughout (SL-19), so its EANs are shared with nobody. SUP-06 and SUP-08 carry third-party manufacturer brands - Dynaplus, Proftec, Rotadrill, Simpson Strong-Tie, DEWALT - whose GTINs are the manufacturer's and therefore appear in every distributor's catalogue. ADR-0006's matching stage is cheap against the second kind and impossible against the first, which makes brand model a supplier-selection criterion and not a detail. *Falsifier: two distributors carrying the same third-party article under different GTINs, which would break matching even in the favourable case.*
+- SL-37 **An industry product-data pool may already exist for this vertical.** ERP vendors serving NL ijzerwaren and gereedschap wholesalers advertise integration with `EZ-BASE` and `nexMart` as external article databases. If suppliers already publish structured article data to a shared pool, the per-supplier adapter problem in `10-architecture/api-contracts/README.md` may be partly solved upstream. Unverified - this comes from an ERP vendor's marketing page, not from EZ-BASE. *Falsifier: EZ-BASE turning out to be closed to non-members, or to carry only a fraction of the vertical.*
+- SL-38 **"We handle the full import from abroad" recurs.** SUP-05 and SUP-08 both advertise it. Buying from them keeps the operator a distributor (SL-29). Accepting their offer to import to the operator's specification makes the operator the importer under REG-03. The trap is common enough in this vertical to be a standing rule rather than a note about one supplier.
 
 ## SUP-01 contract terms
 Source: `Voorwaarden dropshipment / productfeed`, Handelsonderneming Van Doleweerd VOF, version 17 February 2019, extracted with `pdftotext -layout`.
@@ -91,8 +116,9 @@ Measured 2026-08-05 from the public webshop, not from a B2B feed. A B2B feed may
 - SL-31 `00-product/market-selection.md` names dropXL, Everspring, Warmako and Zoodrop as evidence of NL supplier depth. None of them is in the fastening or hand-tool vertical; they are home-and-garden and pet. The supplier-depth claim for the chosen vertical rests on the four candidates in this file, one of which has no dropship programme and one of which is unreachable.
 
 ## OPEN
-- OPEN: no live dropship supplier in this vertical has been found. Widen the search before concluding the vertical is unservable - only dropship-branded suppliers were searched. The wholesale arms of established NL ijzerwaren and gereedschap distributors, trade directories, and asking SUP-02 directly whether it will dropship for a reseller are all unexplored.
-- OPEN: whether SUP-02 would agree to dropship on request. It has the assortment, the stock and the identifiers; it publishes no programme, which is not the same as refusing one.
+- OPEN: whether any of SUP-05 to SUP-15 will dropship on request. None publishes a programme, which is not the same as refusing one. This is now the central question and it is answered by asking, not by searching. Start with SUP-06 (largest catalogue, third-party brands) and SUP-05 (measured identifier quality, ERP behind the shop).
+- OPEN: what SUP-14 and SUP-15 expose behind their B2B logins. A login-gated purchasing platform is the most likely place in this vertical to find a real feed and an order API, and it is invisible from outside.
+- OPEN: whether EZ-BASE or nexMart is reachable by a small reseller, and what article data it carries (SL-37).
 - OPEN: whether any surveyed supplier exposes an order API rather than a portal. Determines SL-25.
 - OPEN: whether a B2B feed carries EAN where SL-02's field list omits it. Only a real feed answers this.
 - OPEN: delta versus full snapshot, and cadence, for every candidate. Unanswerable from public pages; it is the core of docs-jvy.

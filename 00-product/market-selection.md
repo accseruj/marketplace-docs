@@ -80,7 +80,7 @@ Return rates are European 2025-2026 benchmarks; overall EU average is 18-22%.
 - Best fit for MC-03: MPN and EAN coverage is the strongest of any candidate, which keeps the ADR-0006 matching stage cheap when it turns on. Qualified 2026-08-05: coverage is confirmed high, but the surveyed supplier's identifiers are own-brand and therefore shared with no other distributor. Coverage was the wrong measure; see SL-30 in `10-architecture/supplier-landscape.md`.
 - Passes HF-03 and HF-04 as long as powered tools are excluded. Excluding them is also what keeps returns low.
 - Durable in transit, no size grids, low seasonality.
-- **Contested 2026-08-05 on supplier maturity.** The table credits this vertical with a strong EU distributor base. A session of public searching found no live NL supplier in it running a dropship programme: the two that did are bankrupt and defunct. Only dropship-branded suppliers were searched, so this is not yet a verdict - but the criterion is not evidenced either. See SL-33 in `10-architecture/supplier-landscape.md`.
+- **Supplier maturity confirmed 2026-08-05; the delivery model is the problem.** Eleven live NL wholesalers in this vertical were verified, so the distributor base is real. None of them publishes a dropshipping programme - every reseller offer is a trade account or pallet wholesale into the reseller's own warehouse. The first supplier is therefore negotiated rather than selected, which is a commercial task with a lead time. See SL-33 and SL-35 in `10-architecture/supplier-landscape.md`.
 
 ## What is not yet verified
 MC-04 is the one criterion this research cannot settle from public sources. Organic competition is per-keyword, not per-category.

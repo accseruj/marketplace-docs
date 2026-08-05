@@ -31,3 +31,8 @@ jobs:
         run: bash scripts/tests/test-session-brief.sh
       - name: drift-fixture test suite
         run: bash scripts/tests/test-drift-fixture.sh
+      # supplier-probe itself is not run here: it talks to third-party sites, so
+      # CI would fail on their outages. Its classifier is pure, and that is what
+      # this suite exercises.
+      - name: supplier-probe test suite
+        run: bash scripts/tests/test-supplier-probe.sh
