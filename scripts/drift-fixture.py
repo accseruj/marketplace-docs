@@ -145,53 +145,70 @@ def assert_no_leak(target):
         sys.exit("fixture leaks its own answers:\n  " + "\n  ".join(problems))
 
 
-# Prose references to files the copy excludes. Excluding a file does not remove
-# the sentence pointing at it. Anchored rather than pattern-matched: a stale
-# anchor exits loudly, and there is exactly one of these.
-PROSE_REPAIRS = (
-    (
-        "40-devops/README.md",
-        ", see `40-devops/drift-audit-spec.md`",
-        "",
-        "prose reference to the excluded spec",
-    ),
-)
+def excluded_documents(target):
+    """Every .md the corpus has and the copy does not.
+
+    References to these are the only ones that can newly dangle: every other
+    reference already resolved in the corpus, where `docs-check.py` runs on
+    every commit. Derived from the two trees rather than from a list, so a
+    document added to ANSWER_KEY, or a new audit report, needs no second edit.
+    """
+    missing = []
+    for path in sorted(ROOT.rglob("*.md")):
+        rel = path.relative_to(ROOT).as_posix()
+        if any(part.startswith(".") for part in pathlib.Path(rel).parts):
+            continue
+        if not (target / rel).exists():
+            missing.append(rel)
+    return missing
 
 
 def repair_references(target):
-    """Remove references the copy cannot resolve, and return what was removed.
+    """Repair references the copy cannot resolve, and return what was repaired.
 
-    `docs-check.py` run inside an unrepaired fixture exits 1 on four broken
-    references, because `INDEX.md` still routes to the three excluded
-    documents. A reader of that run cannot tell a fixture artefact from an
-    agent regression. Repairing the routing is simpler and more honest than
-    copying the answer key and redacting it: those files are genuinely not in
-    the copy, so the copy should not claim they are.
+    `docs-check.py` run inside an unrepaired fixture exits 1 on six broken
+    references, measured 2026-08-05: three routing rows in `INDEX.md` and three
+    prose citations spread over two documents. A reader of that run cannot tell
+    a fixture artefact from an agent regression. Repairing is simpler and more
+    honest than copying the answer key and redacting it: those files are
+    genuinely not in the copy, so the copy should not claim they are.
 
-    Table rows are matched by rule, not by anchor, so a new audit report or a
-    new routing row does not silently stale this function.
+    Both repairs are matched by rule, not by anchor, so a new audit report, a
+    new routing row, or a new document citing an excluded one does not silently
+    stale this function. An earlier anchored version handled exactly one prose
+    site and went stale the moment `40-devops/work-queue-spec.md` cited the
+    drift-audit spec.
+
+    A routing row that routes nowhere is deleted; a prose citation loses only
+    its backticks, which is what `docs-check.py` keys on. Deleting the sentence
+    would be the larger edit and sometimes the wrong one - in
+    `40-devops/work-queue-spec.md` the citation is the evidence its Checks
+    section argues from.
     """
-    removed = []
+    repaired = []
     index = target / "INDEX.md"
     kept = []
     for line in index.read_text(encoding="utf-8").splitlines(keepends=True):
         refs = re.findall(r"`([0-9a-zA-Z][\w/\-.]*\.md)`", line)
         dangling = [r for r in refs if not (target / r).exists()]
         if line.startswith("|") and dangling:
-            removed.append(f"INDEX.md: routing row for {', '.join(dangling)}")
+            repaired.append(f"INDEX.md: routing row for {', '.join(dangling)}")
             continue
         kept.append(line)
     index.write_text("".join(kept), encoding="utf-8")
 
-    for rel, old, new, why in PROSE_REPAIRS:
-        path = target / rel
-        text = path.read_text(encoding="utf-8")
-        count = text.count(old)
-        if not count:
-            sys.exit(f"fixture is stale: repair anchor not found in {rel}: {old!r}")
-        path.write_text(text.replace(old, new), encoding="utf-8")
-        removed.append(f"{rel}: {why} (x{count})")
-    return removed
+    missing = excluded_documents(target)
+    for path in sorted(target.rglob("*.md")):
+        text = original = path.read_text(encoding="utf-8")
+        count = 0
+        for rel in missing:
+            count += text.count(f"`{rel}`")
+            text = text.replace(f"`{rel}`", rel)
+        if text != original:
+            path.write_text(text, encoding="utf-8")
+            rel_path = path.relative_to(target).as_posix()
+            repaired.append(f"{rel_path}: citation of an excluded document de-linked (x{count})")
+    return repaired
 
 
 # False positives this fixture knowingly manufactures. Excluding a directory
@@ -235,10 +252,11 @@ def print_noise_manifest(target, repaired):
         for rel, count in sorted(hits.items()):
             print(f"NOISE   {rel}: {count}")
     print(
-        f"NOISE repaired-routing {len(repaired)} reference(s) removed - the copy's routing "
-        "table is not the corpus's. Removed rather than left dangling so docs-check.py "
-        "inside the copy stays clean; a doc-vs-doc finding about a missing routing row is "
-        "a fixture artefact."
+        f"NOISE repaired-routing {len(repaired)} repair(s) applied - the copy's routing "
+        "table is not the corpus's, and its prose cites documents the copy excludes. "
+        "Repaired rather than left dangling so docs-check.py inside the copy stays clean; "
+        "a doc-vs-doc finding about a missing routing row, or about a citation that has "
+        "lost its backticks, is a fixture artefact."
     )
     for item in repaired:
         print(f"NOISE   {item}")
