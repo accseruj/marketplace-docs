@@ -103,5 +103,12 @@ d="$(mkfixture "$EPIC" "## Phase 0 - Platform skeleton (current)")"
 if [ "$(code "$d")" != "0" ]; then echo "FAIL case 12: '(current)' was treated as part of the phase name:"; run "$d"; fail=1; fi
 rm -rf "$d"
 
+# case 13 (WQ-C2): a phase epic matching no roadmap heading fails - the other direction
+ORPHAN_EPIC='{"id":"q-8","title":"Phase 9 - Nonexistent","issue_type":"epic","status":"open","labels":["backend"],"description":"Success Criteria: x"}'
+d="$(mkfixture "$ORPHAN_EPIC" "## Phase 0 - Platform skeleton")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 13: an epic matching no roadmap heading did not fail"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "matches no roadmap heading" <<<"$out"; then echo "FAIL case 13: 'matches no roadmap heading' error not found in output:"; echo "$out"; fail=1; fi
+rm -rf "$d"
+
 [ "$fail" = "0" ] && echo "queue-check tests: ok"
 exit "$fail"
