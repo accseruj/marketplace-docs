@@ -427,11 +427,19 @@ if [ "$(code "$d")" = "0" ]; then echo "FAIL case 9: a phase with no epic did no
 if ! run "$d" | grep -q "WQ-C2"; then echo "FAIL case 9: error is not attributed to WQ-C2"; fail=1; fi
 rm -rf "$d"
 
-# case 10 (WQ-C2): the '(current)' marker is not part of the name
+# case 12 (WQ-C2): the '(current)' marker is not part of the name
 d="$(mkfixture "$EPIC" "## Phase 0 - Platform skeleton (current)")"
-if [ "$(code "$d")" != "0" ]; then echo "FAIL case 10: '(current)' was treated as part of the phase name:"; run "$d"; fail=1; fi
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 12: '(current)' was treated as part of the phase name:"; run "$d"; fail=1; fi
+rm -rf "$d"
+
+# case 13 (WQ-C2): a phase epic matching no roadmap heading fails - the other direction
+ORPHAN_EPIC='{"id":"q-8","title":"Phase 9 - Nonexistent","issue_type":"epic","status":"open","labels":["backend"],"description":"Success Criteria: x"}'
+d="$(mkfixture "$ORPHAN_EPIC" "## Phase 0 - Platform skeleton")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 13: an epic matching no roadmap heading did not fail"; fail=1; fi
 rm -rf "$d"
 ```
+
+Case 13 covers the second loop in `check_phases`. Without it that branch never runs in a red/green cycle, and `CONVENTIONS.md` is explicit that an untested check is a false negative wearing a green tick.
 
 - [ ] **Step 2: Run it to verify it fails**
 
