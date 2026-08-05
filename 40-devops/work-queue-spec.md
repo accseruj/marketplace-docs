@@ -58,6 +58,10 @@ The corpus will span infra, frontend, backend, catalog, feeds and sourcing (`10-
   - The phase epic owns which issues are in the phase and what blocks what. It carries no prose.
   - The only shared fact is the name and order of the phases. That is what WQ-C2 checks.
 - This replaces the current unverifiable pointer in roadmap.md, Phase -1: *"All three are open beads issues"* names no ids, so a fourth issue would join silently.
+**Measured after implementation, 2026-08-05: `bd ready` went from 21 to 22. The phase graph narrowed nothing.** The prediction that motivated this design was wrong on today's corpus, and the reason is not a defect in the graph. Twenty of the twenty-four phase-owned issues belong to Phase -1, the current phase, which nothing blocks by construction. The four Phase 0 issues that the graph does newly block were already blocked by ordinary `blocks` edges onto open Phase -1 work, so the phase layer is redundant with what was already there. The `+1` is the Phase -1 epic itself, which is ready and correctly so. Verified with `bd dep tree` on all four, independently of the run that made the change.
+
+The honest reading: 21-of-31 was never evidence of a missing structure. It is what a corpus looks like when almost all of its work sits in one phase and is genuinely parallel. The graph starts paying at the first phase transition, when Phase 0 issues outnumber their organic blockers — which is the state this design was built for and is not the state today. Anyone re-deriving this decision should weigh it on that basis, not on a narrowing that has not happened.
+
 - Issues outside every phase (repo hygiene, tooling) take no parent and stay permanently ready. That is correct, and it means the ready set floors above zero rather than reaching it.
 - Such issues also carry no layer label, since WQ-04 attaches the label to an epic. That is the intended reading, not an omission: work that belongs to no container has no layer to name. WQ-C1 therefore scopes itself to issues that have a parent.
 
