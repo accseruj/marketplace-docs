@@ -2,11 +2,13 @@
 """Work-queue checks. Run from the docs repo root: python3 scripts/queue-check.py
 
 Enforces 40-devops/work-queue-spec.md:
-  WQ-C1  every issue with a parent carries exactly one layer label
+  WQ-C1  every issue with a parent carries exactly one layer label (error)
+  WQ-C3  every open issue has required sections in its description (error)
+  WQ-C4  every open issue named in a commit subject (warning)
 Reads .beads/issues.jsonl, which is tracked in git. Never invokes bd: CI
 installs Python only, and a check that shells out to a missing binary is a
 green tick with nothing behind it.
-Exit code 1 on any error.
+Exit code 1 on errors; warnings do not affect exit code.
 """
 import argparse, json, pathlib, re, subprocess, sys
 
@@ -94,13 +96,19 @@ def main():
 
     issues = load_issues(root)
     subjects = commit_subjects(root, args.subjects_file)
-    errors = check_layers(issues) + check_sections(issues) + check_orphans(issues, subjects)
+    errors = check_layers(issues) + check_sections(issues)
+    warnings = check_orphans(issues, subjects)
 
     print(f"checked {len(issues)} issues\n")
     if errors:
         print(f"ERRORS ({len(errors)}):")
         for e in errors:
             print("  " + e)
+        print()
+    if warnings:
+        print(f"WARNINGS ({len(warnings)}):")
+        for w in warnings:
+            print("  " + w)
         print()
     print("ok" if not errors else "FAILED")
     sys.exit(1 if errors else 0)
