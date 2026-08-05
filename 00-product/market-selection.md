@@ -3,7 +3,7 @@ doc: market-selection
 purpose: Candidate first market and first vertical, scored against the launch criteria and against EU product-compliance law.
 read_when: choosing or revisiting the first market/vertical; before ADR-0005 sizing inputs
 status: draft
-updated: 2026-08-03
+updated: 2026-08-05
 related: [00-product/vision.md, 00-product/automation-charter.md, 60-decisions/ADR-0005-catalog-data-layer.md, 60-decisions/ADR-0007-compliance-role.md]
 ---
 
@@ -77,7 +77,7 @@ Return rates are European 2025-2026 benchmarks; overall EU average is 18-22%.
 
 **Recommendation: hand tools and workshop consumables, narrowed to one segment.**
 - Best fit for MC-05: the buyer wants specification, not brand voice. Product copy generates from structured attributes, which is the only content model a solo operator can run across 10-20 storefronts.
-- Best fit for MC-03: MPN and EAN coverage is the strongest of any candidate, which keeps the ADR-0006 matching stage cheap when it turns on.
+- Best fit for MC-03: MPN and EAN coverage is the strongest of any candidate, which keeps the ADR-0006 matching stage cheap when it turns on. Qualified 2026-08-05: coverage is confirmed high, but the surveyed supplier's identifiers are own-brand and therefore shared with no other distributor. Coverage was the wrong measure; see SL-30 in `10-architecture/supplier-landscape.md`.
 - Passes HF-03 and HF-04 as long as powered tools are excluded. Excluding them is also what keeps returns low.
 - Durable in transit, no size grids, low seasonality.
 
@@ -86,6 +86,7 @@ MC-04 is the one criterion this research cannot settle from public sources. Orga
 
 - Required before committing: keyword-level competition analysis for two or three concrete segments in Dutch, with search volume, top-10 domain strength, and whether bol.com and the incumbent DIY chains hold the head terms.
 - Required before committing: two or three named NL-warehoused distributors in the chosen segment, with a sample feed actually retrieved and inspected. That inspection also produces the ADR-0005 sizing inputs (SKU count, delta vs full snapshot, cadence) and the ADR-0006 identifier-quality answer.
+- Partially done 2026-08-05, desk research only: four named candidates, their published fees and contract terms, and a measured catalogue in `10-architecture/supplier-landscape.md`. No feed retrieved, so cadence and delta-vs-snapshot remain unanswered. That survey corrects two claims below - see SL-30 and SL-31.
 
 ## OPEN
 - OPEN: which segment inside hand tools and workshop consumables. Needs the keyword analysis above.

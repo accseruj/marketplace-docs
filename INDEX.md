@@ -29,6 +29,7 @@ updated: 2026-08-05
 | Services, repos, runtimes, data stores | `10-architecture/c4-container.md` |
 | Entities, ownership, state machines | `10-architecture/domain-model.md` |
 | Supplier feeds, order routing, contracts | `10-architecture/api-contracts/README.md` |
+| What real NL suppliers publish - fees, feed formats, identifier quality | `10-architecture/supplier-landscape.md` |
 | "Why did we choose X" | `60-decisions/` (see index below) |
 | Magento multistore, MSI, indexers, GraphQL security | `20-backend/README.md` |
 | Tenancy, design system, rendering, SEO | `30-frontend/README.md` |
