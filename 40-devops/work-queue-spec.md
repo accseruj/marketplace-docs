@@ -106,6 +106,7 @@ A rule stated here without an instrument is an obligation verified at review, an
 - Reason, corrected 2026-08-04 during planning: `.github/workflows/docs-hygiene.yml` installs Python only. A check that shells out to `bd` either breaks CI or is skipped when the binary is absent, and a skipped check is a green tick with nothing behind it. The export file is tracked in git (`export.auto`, `export.git-add` in `.beads/config.yaml`), so the queue's state is readable as a file wherever the repo is checked out.
 - WQ-C3 restates what `bd lint` enforces rather than calling it. The duplication is deliberate and bounded: the section requirements per type are four lines.
 - They live in `scripts/queue-check.py`, not in `scripts/docs-check.py`, which owns document hygiene and takes no argument about issues.
+- The export lags the database. `bd update` writes Dolt; the checks read `.beads/issues.jsonl`, refreshed on a 60s `export.interval`. Measured 2026-08-05: a check run immediately after a batch of updates reported 13 errors that no longer existed. Any local run therefore does `bd export -o .beads/issues.jsonl` first; CI is unaffected, since it reads the committed file.
 - WQ-C4 already works today with no new convention: `CONVENTIONS.md` session close requires the issue id in the commit subject.
 - Registering these does not create an eighth drift-audit pair. WQ-C2 compares one line per phase, not two descriptions of the same phase; the prose lives in exactly one place by WQ-05.
 

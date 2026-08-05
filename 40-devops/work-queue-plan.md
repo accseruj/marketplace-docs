@@ -561,7 +561,7 @@ Write one per issue. "Done when done" passes the check and defeats it.
 - [ ] **Step 5: Verify and push**
 
 Run: `python3 scripts/queue-check.py > /tmp/qc.out 2>&1; echo $?; cat /tmp/qc.out`
-Expected: exit 0 — WQ-C3 clean. WQ-C1 and WQ-C2 are still vacuum-passing; Task 6 and Task 7 give them something to judge.
+Expected: **exit 1, with zero WQ-C3 errors and exactly five WQ-C2 errors** — one per roadmap phase, because the phase epics do not exist until Task 6. WQ-C1 still has nothing to judge until issues have parents. The WQ-C4 warning on `docs-b83` persists and does not affect the exit code.
 
 ```bash
 bd dolt push
@@ -743,7 +743,7 @@ Separate steps, matching the reasoning already recorded in that file: a failure 
 In `CONVENTIONS.md`, session close step 3, replace the single command with both:
 
 ```markdown
-3. Run `python3 scripts/docs-check.py` and `python3 scripts/queue-check.py`. Neither may be piped - a pipe reports the exit code of the last stage.
+3. Run `bd export -o .beads/issues.jsonl`, then `python3 scripts/docs-check.py` and `python3 scripts/queue-check.py`. Neither check may be piped - a pipe reports the exit code of the last stage. The export step is not optional: `bd update` writes the Dolt database, while the checks read the exported file, and `export.interval` in `.beads/config.yaml` is 60s - without the explicit export, a check run straight after a batch of updates reads the queue as it was a minute ago.
 ```
 
 The routing row for this plan is already in `INDEX.md` — it was added when the file was written, because a file outside the routing table does not exist by `CONVENTIONS.md` and `docs-check.py` fails on it immediately.
