@@ -14,7 +14,8 @@ Desk research only. No supplier account was held and no feed file was retrieved;
 ## How to re-derive anything here
 - Catalogue counts: `curl -s https://www.wovar.nl/sitemap.xml`, then count `<loc>` in the child sitemaps.
 - Identifier coverage: fetch product pages, read the `EAN code` row of `table.spec-table`, or the Apollo blob keys `WVR1_ERP_EAN_code` / `WVR1_Generaldata_Barcode_1`.
-- Contract terms: the PDF cited in SUP-01, extracted to text.
+- Contract terms: the PDF cited in SUP-01, extracted with `pdftotext -layout -enc UTF-8`.
+- Trading status: a live site can be down without meaning anything. Bracket it against `https://web.archive.org/cdx/search/cdx?url=<host>&fl=timestamp,original,statuscode`, then read the two snapshots either side of the change.
 - Sampling was seeded (`random.seed(20260805)`), so the same 40 URLs are reproducible from the sitemap.
 
 **Do not read `itemProp="gtin13"` from the microdata.** It belongs to the related-products carousel and always renders `content="-"`. Reading it produces 0% EAN coverage on a catalogue that in fact carries 98%. This false negative was produced and caught on 2026-08-05.
@@ -23,15 +24,25 @@ Desk research only. No supplier account was held and no feed file was retrieved;
 
 | ID | Supplier | Vertical fit | Dropship programme | Feed | Status observed 2026-08-05 |
 |---|---|---|---|---|---|
-| SUP-01 | Handelsonderneming Van Doleweerd VOF, Oss, KvK 17146505 | Ijzerwaren, fastening | **Yes, contract published** | XML, CSV or TXT | `doleweerd.nl` returns HTTP 500 (WordPress fatal); `dealer.doleweerd.nl` returns 404 |
+| SUP-01 | Handelsonderneming Van Doleweerd VOF, Oss, KvK 17146505; continued as Doleweerd B.V. | **None** - scooter parts and accessories | Contract published, now moot | XML, CSV or TXT | **Bankrupt.** Activities ceased; `doleweerd.nl` returns HTTP 500 |
 | SUP-02 | Wovar, `wovar.nl` | **Best fit** - fastening, hardware, hand tools | **No** - business account, full-pallet wholesale, project quotes only | none published | Live |
 | SUP-03 | Drobbs / `dropshipspecialist.nl` | Partial - broad home and garden, tools a slice | Yes | CSV, XML, API | Live |
-| SUP-04 | `gereedschapdropshipping.nl` | Good - tools, workshop, PPE, consumables | Advertised | not published | TLS certificate expired; HTTP 403 to automated requests |
+| SUP-04 | `gereedschapdropshipping.nl` | **Best on paper** - tools, workshop, PPE, consumables | Was a real programme | product list with descriptions, images, article codes | **Defunct.** Last archive capture 2022-01-23; TLS certificate expired 2024-10-10 and never renewed; HTTP 403 on every path |
 
-No candidate satisfies both "right vertical" and "dropship feed available" at once. SUP-02 has the assortment and no programme; SUP-01 has the programme and a broken web presence.
+**Both suppliers that published a dropship programme in or near this vertical are dead.** SUP-01 is bankrupt and was never in this vertical anyway; SUP-04 was exactly the right supplier and has not been captured by the Internet Archive since January 2022, with a certificate unrenewed since October 2024. What survives is SUP-02, which has the assortment and no dropship programme, and SUP-03, which has the programme and a slice of the assortment.
+
+- SL-33 **Desk research found no live dropship supplier in NL hand tools and fastening.** Two existed and both failed. This does not prove none exists - only dropship-branded suppliers were searched, not the wholesale arms of established ijzerwaren distributors, which is where SUP-02 sits. But it is the opposite of the "strong EU distributor base" that `00-product/market-selection.md` assumes for this vertical, and it was found in one session of public searching. *Falsifier: one live NL supplier in this vertical with a dropship programme and a feed - which is what `bd` issue docs-sru.1 exists to find.*
+- SL-34 **A dropship programme is a business that can fail, not an infrastructure that persists.** Two of four candidates died inside four years, one of them between two monthly crawls. Supplier onboarding cost is therefore recurring, not one-off, and SC-05's "supplier N+1 is configuration" is load-bearing for survival rather than for growth. Check trading status before every supplier decision, not once. *Falsifier: a five-year survival rate for NL dropship suppliers materially better than the 2-of-4 seen here; this sample is too small to carry the rate itself, only the mechanism.*
 
 ## SUP-01 contract terms
-Source: `Voorwaarden dropshipment / productfeed`, Handelsonderneming Van Doleweerd VOF, version 17 February 2019. Seven years old - treat every figure as indicative until reconfirmed.
+Source: `Voorwaarden dropshipment / productfeed`, Handelsonderneming Van Doleweerd VOF, version 17 February 2019, extracted with `pdftotext -layout`.
+
+Read this section as evidence about **how NL dropship contracts are written**, not about this vertical and not about a supplier anyone can still use.
+
+- SUP-01 sold scooter parts and accessories - `<title>` on every archived snapshot reads "Groothandel in scooteronderdelen en -accessoires". This file's first version called it an ijzerwaren wholesaler. That was wrong: the description was lifted from a different company in the same search results and mapped onto this one. A supplier's vertical is a claim about the supplier, and it needs the supplier's own page.
+- Doleweerd B.V. was declared bankrupt and has ceased trading; the site now carries only a notice directing questions to the curator. The snapshot of 2026-04-17 is a normal shopfront and the snapshot of 2026-05-11 is the bankruptcy notice, which brackets the failure to that window.
+- Its assortment would have failed HF-03 and HF-04 regardless: scooter parts carry electrical components and batteries.
+- The terms below are therefore retained for one reason only - they are a real, published, complete NL dropship contract, and the surveyed alternatives publish nothing comparable.
 
 - SL-01 Dropship fee is **EUR 8,50 per Order excl. VAT**, all-in: handling, packaging, shipping, insurance to EUR 500 incl. VAT (art. 4.2).
 - SL-02 The feed is a file - XML, CSV or TXT - carrying article numbers, product names, brand names, descriptions, photos, advice prices and stock (art. 1.1). No EAN in the enumerated field list.
@@ -67,7 +78,7 @@ Measured 2026-08-05 from the public webshop, not from a B2B feed. A B2B feed may
 
 ## What this changes
 
-- SL-23 **The market prices the order, not the line.** SL-01 and SL-14 are both per-order fees. A per-line cheapest-offer rule that splits a basket across two suppliers pays the fixed fee twice, and the fee is a large share of a fastening-basket's value. Feeds directly into `bd` issue docs-dqt (AUD-04). *Falsifier: a named NL dropship supplier whose tariff is per line or per unit rather than per order.*
+- SL-23 **The market prices the order, not the line.** SL-01 and SL-14 are both per-order fees. A per-line cheapest-offer rule that splits a basket across two suppliers pays the fixed fee twice, and the fee is a large share of a fastening-basket's value. Feeds directly into `bd` issue docs-dqt (AUD-04). **Weak on vertical:** neither data point comes from fastening or hand tools - SUP-01 sold scooter parts and SUP-03 sells home and garden. The claim is that NL dropship suppliers tariff this way, not that this vertical does. *Falsifier: a named NL dropship supplier whose tariff is per line or per unit rather than per order.*
 - SL-24 **Consolidation cannot be assumed.** SL-08 makes partial delivery the supplier's choice. Any sourcing model that assumes one order equals one parcel is assuming a term no surveyed contract grants. *Falsifier: a contract clause guaranteeing single-parcel dispatch of an in-stock multi-line order.*
 - SL-25 **Portal-only ordering collides with INV-03.** SL-05 gives no API and no event for the one transition that matters most - placing the purchase order. The automation charter's readiness test #3 fails against this supplier as contracted. Either the invariant admits a documented exception surface, or suppliers without an order API are disqualified, which shrinks an already thin candidate list. This is a decision, not a detail; it needs its own issue. *Falsifier: a dealer portal that turns out to expose a documented order API, or a supplier in this vertical that publishes one.*
 - SL-26 **Returns land on the operator.** SL-09 means a dropshipping model with no warehouse still needs a return address, an inspection step and a restocking route. Feeds into `bd` issue docs-1kr. *Falsifier: a supplier contract in this vertical that accepts consumer returns directly.*
@@ -80,8 +91,8 @@ Measured 2026-08-05 from the public webshop, not from a B2B feed. A B2B feed may
 - SL-31 `00-product/market-selection.md` names dropXL, Everspring, Warmako and Zoodrop as evidence of NL supplier depth. None of them is in the fastening or hand-tool vertical; they are home-and-garden and pet. The supplier-depth claim for the chosen vertical rests on the four candidates in this file, one of which has no dropship programme and one of which is unreachable.
 
 ## OPEN
-- OPEN: SUP-01's terms are from 2019 and its website is down. Is the company still trading and is the dropship programme still offered? KvK 17146505 is the check.
-- OPEN: SUP-04 blocks automated access and needs a manual visit; it is the only remaining candidate with both the right vertical and an advertised programme.
+- OPEN: no live dropship supplier in this vertical has been found. Widen the search before concluding the vertical is unservable - only dropship-branded suppliers were searched. The wholesale arms of established NL ijzerwaren and gereedschap distributors, trade directories, and asking SUP-02 directly whether it will dropship for a reseller are all unexplored.
+- OPEN: whether SUP-02 would agree to dropship on request. It has the assortment, the stock and the identifiers; it publishes no programme, which is not the same as refusing one.
 - OPEN: whether any surveyed supplier exposes an order API rather than a portal. Determines SL-25.
 - OPEN: whether a B2B feed carries EAN where SL-02's field list omits it. Only a real feed answers this.
 - OPEN: delta versus full snapshot, and cadence, for every candidate. Unanswerable from public pages; it is the core of docs-jvy.
