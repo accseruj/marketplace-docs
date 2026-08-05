@@ -316,21 +316,25 @@ git commit -m "restate bd lint's section rule where bd is not installed"
 Append to `scripts/tests/test-queue-check.sh`, before the `[ "$fail" = "0" ]` line:
 
 ```bash
-# case 7 (WQ-C4): an open issue named in a commit subject fails
+# case 9 (WQ-C4): an open issue named in a commit subject warns but does not fail
 OPEN_ISSUE='{"id":"q-4","title":"open work","issue_type":"chore","status":"open","description":"x"}'
 d="$(mkfixture "$OPEN_ISSUE" "")"
 echo "do the thing (q-4)" > "$d/subjects.txt"
-if [ "$(code "$d")" = "0" ]; then echo "FAIL case 7: open issue in a commit subject did not fail"; fail=1; fi
-if ! run "$d" | grep -q "WQ-C4"; then echo "FAIL case 7: error is not attributed to WQ-C4"; fail=1; fi
+if [ "$(code "$d")" != "0" ]; then echo "FAIL case 9: WQ-C4 must warn, not fail"; fail=1; fi
+out="$(run "$d")"
+if ! grep -q "WQ-C4" <<<"$out"; then echo "FAIL case 9: no WQ-C4 warning was emitted"; fail=1; fi
 rm -rf "$d"
 
-# case 8 (WQ-C4): the same subject against a closed issue passes
+# case 10 (WQ-C4): the same subject against a closed issue says nothing
 CLOSED_ISSUE='{"id":"q-4","title":"open work","issue_type":"chore","status":"closed","description":"x"}'
 d="$(mkfixture "$CLOSED_ISSUE" "")"
 echo "do the thing (q-4)" > "$d/subjects.txt"
-if [ "$(code "$d")" != "0" ]; then echo "FAIL case 8: a closed issue was reported as an orphan:"; run "$d"; fail=1; fi
+out="$(run "$d")"
+if grep -q "WQ-C4" <<<"$out"; then echo "FAIL case 10: a closed issue was reported as an orphan"; fail=1; fi
 rm -rf "$d"
 ```
+
+Case 9 asserts exit 0 **and** the warning line. Asserting only the exit code would pass with `check_orphans` deleted.
 
 - [ ] **Step 2: Run it to verify it fails**
 
@@ -362,11 +366,28 @@ def check_orphans(issues, subjects):
     return errors
 ```
 
-Change the `errors` line in `main` to:
+WQ-C4 is a **warning, not an error**: it cannot tell a commit that did an issue's work from one that merely registered the issue, and `d4704f2` in this repo's own history is the second kind. An error there would be permanently red, which `scripts/docs-check.py:114-117` already names as the failure mode that trains people to ignore a check.
+
+In `main`, split the two streams and print warnings the way `docs-check.py` does:
 
 ```python
     subjects = commit_subjects(root, args.subjects_file)
-    errors = check_layers(issues) + check_sections(issues) + check_orphans(issues, subjects)
+    errors = check_layers(issues) + check_sections(issues)
+    warnings = check_orphans(issues, subjects)
+
+    print(f"checked {len(issues)} issues\n")
+    if errors:
+        print(f"ERRORS ({len(errors)}):")
+        for e in errors:
+            print("  " + e)
+        print()
+    if warnings:
+        print(f"WARNINGS ({len(warnings)}):")
+        for w in warnings:
+            print("  " + w)
+        print()
+    print("ok" if not errors else "FAILED")
+    sys.exit(1 if errors else 0)
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
@@ -443,14 +464,16 @@ def check_phases(issues, roadmap_text):
     return errors
 ```
 
-In `main`, read the roadmap and extend the error list:
+In `main`, read the roadmap and extend the error list. WQ-C4 stays in `warnings`, per Task 3:
 
 ```python
     roadmap = root / "00-product" / "roadmap.md"
     roadmap_text = roadmap.read_text(encoding="utf-8") if roadmap.exists() else ""
-    errors = (check_layers(issues) + check_sections(issues)
-              + check_orphans(issues, subjects) + check_phases(issues, roadmap_text))
+    errors = check_layers(issues) + check_sections(issues) + check_phases(issues, roadmap_text)
+    warnings = check_orphans(issues, subjects)
 ```
+
+Also update the module docstring to list every rule the file now implements — WQ-C1, WQ-C2, WQ-C3 as errors and WQ-C4 as a warning. It has said only WQ-C1 since Task 1.
 
 - [ ] **Step 4: Run the test to verify it passes**
 

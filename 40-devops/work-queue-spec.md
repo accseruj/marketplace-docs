@@ -99,9 +99,10 @@ A rule stated here without an instrument is an obligation verified at review, an
 | WQ-C1 | Every open non-gate issue that has a parent carries exactly one WQ-04 label | Add a second layer label to one issue; remove the label from one epic |
 | WQ-C2 | Phase headings in `00-product/roadmap.md` and phase epics agree on count and name | Add a phase heading to roadmap.md with no matching epic; rename one epic |
 | WQ-C3 | Every open issue carries the sections its type requires, each opening a line | Create an issue of type `task` with no Acceptance Criteria; and one whose description only mentions the phrase in prose |
-| WQ-C4 | No issue id appears in a commit subject while still open | Reference an open issue id in a commit subject and leave it open |
+| WQ-C4 | No issue id appears in a commit subject while still open — **warning, not error** | Reference an open issue id in a commit subject and leave it open; the run must warn and still exit 0 |
 
 - All four read `.beads/issues.jsonl` and `git log`. Neither invokes `bd`.
+- WQ-C4 warns rather than fails, decided 2026-08-05 on a case in this repo's own history. `d4704f2` names `docs-b83` in its subject because it *recorded* that issue, not because it did its work, and the work is still legitimately open. The check cannot separate the two intents, so as an error it would be permanently red — the failure mode `scripts/docs-check.py` already names, where a check that is always failing teaches the reader to skip it. Every other rule here is an error.
 - Reason, corrected 2026-08-04 during planning: `.github/workflows/docs-hygiene.yml` installs Python only. A check that shells out to `bd` either breaks CI or is skipped when the binary is absent, and a skipped check is a green tick with nothing behind it. The export file is tracked in git (`export.auto`, `export.git-add` in `.beads/config.yaml`), so the queue's state is readable as a file wherever the repo is checked out.
 - WQ-C3 restates what `bd lint` enforces rather than calling it. The duplication is deliberate and bounded: the section requirements per type are four lines.
 - They live in `scripts/queue-check.py`, not in `scripts/docs-check.py`, which owns document hygiene and takes no argument about issues.
