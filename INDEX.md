@@ -35,7 +35,7 @@ updated: 2026-08-04
 | Environments, CI/CD, hosting, monitoring, Claude tooling | `40-devops/README.md` |
 | The recurring drift audit - what it compares, how it runs, how it is tested | `40-devops/drift-audit-spec.md` |
 | Implementing the drift audit, task by task | `40-devops/drift-audit-plan.md` |
-| How the work queue is structured - labels, phase epics, exit gates, and their checks | `40-devops/work-queue-spec.md` |
+| How the work queue is structured - labels, phase epics, and their checks | `40-devops/work-queue-spec.md` |
 | Implementing the work-queue structure, task by task | `40-devops/work-queue-plan.md` |
 | Doing an operational procedure | `50-runbooks/` |
 | A specific storefront's niche, suppliers, pricing, SEO | `70-tenants/<slug>.md` |

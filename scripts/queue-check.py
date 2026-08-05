@@ -2,7 +2,8 @@
 """Work-queue checks. Run from the docs repo root: python3 scripts/queue-check.py
 
 Enforces 40-devops/work-queue-spec.md:
-  WQ-C1  every issue with a parent carries exactly one layer label (error)
+  WQ-C1  every epic, and every issue with a parent, carries exactly one layer
+         label, and no issue carries a label outside the WQ-04 vocabulary (error)
   WQ-C2  every roadmap phase has a matching phase epic (error)
   WQ-C3  every open issue has required sections in its description (error)
   WQ-C4  every open issue named in a commit subject (warning)
@@ -19,7 +20,11 @@ LAYERS = frozenset({"infrastructure", "frontend", "backend",
 def load_issues(root):
     path = root / ".beads" / "issues.jsonl"
     if not path.exists():
-        return []
+        # Returning [] here made every check vacuous: a mistyped --root printed
+        # "checked 0 issues / ok" and exited 0, which is the green tick with
+        # nothing behind it this design rejects. The absent file is the failure.
+        sys.exit(f"queue-check: no export at {path}\n"
+                 "  Run `bd export -o .beads/issues.jsonl`, or point --root at the docs repo root.")
     out = []
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
@@ -39,11 +44,27 @@ def parent_of(issue):
 def check_layers(issues):
     errors = []
     for i in issues:
-        if i.get("status") == "closed" or parent_of(i) is None:
+        if i.get("status") == "closed":
             continue
-        found = sorted(set(i.get("labels") or []) & LAYERS)
+        labels = i.get("labels") or []
+        # WQ-04 says the layer is the only label axis and that an epic carries
+        # only its layer label. Both were prose with no instrument until this
+        # line: a second axis could have been introduced without anything
+        # saying so, and an off-vocabulary label on an epic propagates to every
+        # child created under it.
+        outside = sorted(set(labels) - LAYERS)
+        if outside:
+            errors.append(f"WQ-C1 {i['id']}: carries labels outside the WQ-04 vocabulary {outside}")
+        # An epic is judged on its own label rather than on a parent it does not
+        # have. WQ-04 puts the layer on the epic, so an unlabelled epic is the
+        # violation the rule exists to catch; skipping every parentless issue
+        # left WQ-C1's own stated falsifier unable to fire.
+        if i.get("issue_type") != "epic" and parent_of(i) is None:
+            continue
+        found = sorted(set(labels) & LAYERS)
         if len(found) != 1:
-            errors.append(f"WQ-C1 {i['id']}: has a parent but carries {len(found)} layer labels {found}")
+            why = "is an epic" if i.get("issue_type") == "epic" else "has a parent"
+            errors.append(f"WQ-C1 {i['id']}: {why} but carries {len(found)} layer labels {found}")
     return errors
 
 # Mirrors `bd lint`'s requirements rather than calling it. Four lines of

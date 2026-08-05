@@ -9,11 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # WQ-C4 reads `git log --format=%s`. At the default fetch-depth of 1
+          # that log is one commit long, so no orphan can ever be found and the
+          # check is inert in CI while passing locally. 0 fetches full history.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      # Three separate steps, not one script: a failure names which instrument
-      # broke. The two test suites ran only when someone remembered to run
+      # Five separate steps, not one script: a failure names which instrument
+      # broke. The three test suites ran only when someone remembered to run
       # them, which is this project's own definition of a rule rather than an
       # instrument - see 40-devops/drift-audit-spec.md, "Why this exists".
       - name: docs hygiene check

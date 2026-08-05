@@ -110,5 +110,31 @@ if [ "$(code "$d")" = "0" ]; then echo "FAIL case 13: an epic matching no roadma
 out="$(run "$d")"; if ! grep -q "matches no roadmap heading" <<<"$out"; then echo "FAIL case 13: 'matches no roadmap heading' error not found in output:"; echo "$out"; fail=1; fi
 rm -rf "$d"
 
+# case 14 (WQ-C1): an epic carrying no layer label fails - WQ-04 puts the label
+# on the epic, and this is the violation the spec's own falsifier names
+BARE_EPIC='{"id":"q-1","title":"Phase 0 - Platform skeleton","issue_type":"epic","status":"open","labels":[],"description":"Success Criteria: x"}'
+d="$(mkfixture "$BARE_EPIC" "## Phase 0 - Platform skeleton")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 14: an unlabelled epic did not fail"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "WQ-C1 q-1" <<<"$out"; then echo "FAIL case 14: the epic was not reported by WQ-C1:"; echo "$out"; fail=1; fi
+rm -rf "$d"
+
+# case 15 (WQ-C1): a label outside the seven-value vocabulary fails - WQ-04 says
+# the layer is the only label axis
+OFF_VOCAB='{"id":"q-1.1","title":"child","issue_type":"task","status":"open","labels":["backend","urgent"],"description":"Acceptance Criteria: x","dependencies":[{"issue_id":"q-1.1","depends_on_id":"q-1","type":"parent-child"}]}'
+d="$(mkfixture "$EPIC
+$OFF_VOCAB" "## Phase 0 - Platform skeleton")"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 15: an off-vocabulary label did not fail"; fail=1; fi
+out="$(run "$d")"; if ! grep -q "outside the WQ-04 vocabulary" <<<"$out"; then echo "FAIL case 15: the off-vocabulary label was not named:"; echo "$out"; fail=1; fi
+rm -rf "$d"
+
+# case 16: a missing export is a hard failure, not "checked 0 issues / ok"
+d="$(mkfixture "$LOOSE" "")"
+rm -f "$d/.beads/issues.jsonl"
+if [ "$(code "$d")" = "0" ]; then echo "FAIL case 16: a missing export exited 0"; fail=1; fi
+out="$(run "$d")"
+if ! grep -q "no export at" <<<"$out"; then echo "FAIL case 16: the missing export was not named:"; echo "$out"; fail=1; fi
+if grep -q "checked 0 issues" <<<"$out"; then echo "FAIL case 16: a missing export was reported as an empty queue"; fail=1; fi
+rm -rf "$d"
+
 [ "$fail" = "0" ] && echo "queue-check tests: ok"
 exit "$fail"

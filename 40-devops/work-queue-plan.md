@@ -3,7 +3,7 @@ doc: work-queue-plan
 purpose: Task-by-task implementation plan for the queue structure specified in 40-devops/work-queue-spec.md.
 read_when: implementing the work-queue structure or its checks
 status: draft
-updated: 2026-08-04
+updated: 2026-08-05
 related: [40-devops/work-queue-spec.md, CONVENTIONS.md, 00-product/roadmap.md]
 ---
 
@@ -11,9 +11,9 @@ related: [40-devops/work-queue-spec.md, CONVENTIONS.md, 00-product/roadmap.md]
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the queue structure specified in `40-devops/work-queue-spec.md` — one label axis, phases as epics, human gates — and the four checks that keep it from rotting.
+**Goal:** Build the queue structure specified in `40-devops/work-queue-spec.md` — one label axis, phases as epics — and the four checks that keep it from rotting. Gates were part of this goal until 2026-08-05; `bd` 1.0.5 forbids them, and Task 7 records what was tried.
 
-**Architecture:** A single new instrument, `scripts/queue-check.py`, reads the git-tracked beads export and `git log`; it never invokes `bd`, because CI installs Python only. Checks are built **before** the data they police, each proven against an injected violation on a synthetic fixture rather than against the live queue. The data migration (retype, epics, labels, gates) follows, and CI wiring comes last so the pipeline is never knowingly red.
+**Architecture:** A single new instrument, `scripts/queue-check.py`, reads the git-tracked beads export and `git log`; it never invokes `bd`, because CI installs Python only. Checks are built **before** the data they police, each proven against an injected violation on a synthetic fixture rather than against the live queue. The data migration (retype, epics, labels, parents) follows, and CI wiring comes last so the pipeline is never knowingly red.
 
 **Tech Stack:** Python 3.12 (matching `scripts/docs-check.py` and the CI workflow), POSIX/bash shell, `bd` 1.0.5 for the migration tasks only.
 
@@ -636,12 +636,14 @@ Reparenting does not re-run inheritance — inheritance applies at creation. Set
 
 ```bash
 bd label add docs-47o docs-dqt docs-jvy catalog
-bd label add docs-2w2 docs-rt3 backend
-bd label add docs-wwe docs-4qa frontend
+bd label add docs-2w2 docs-rt3 docs-wwe backend
+bd label add docs-4qa frontend
 bd label add docs-9fl docs-dvg docs-n1f docs-pjl docs-1kr docs-q6x docs-97h \
              docs-cn2 docs-ecw docs-npe docs-u26 docs-xa6 docs-72g docs-e2h \
              docs-muc docs-rt4 docs-ruf product
 ```
+
+Corrected 2026-08-05: `docs-wwe` was run as `frontend` here and is backend work — its title, description and acceptance criteria all name `20-backend/README.md`. Fixed in the queue with `bd label remove docs-wwe frontend` then `bd label add docs-wwe backend`. WQ-C1 cannot catch this: one layer label was present either way, and no check can read whether the label is the right one.
 
 - [ ] **Step 6: Verify WQ-C1 and WQ-C2 now have something to judge, and pass**
 
@@ -657,10 +659,12 @@ bd label remove docs-2w2 frontend
 python3 scripts/queue-check.py > /tmp/qc.out 2>&1; echo $?   # expect 0
 ```
 
-- [ ] **Step 7: Confirm the queue actually narrowed**
+- [ ] **Step 7: Confirm the queue actually narrowed — MEASURED 2026-08-05, the prediction was wrong**
 
 Run: `bd ready | tail -3`
 Expected: fewer ready issues than the 21 recorded on 2026-08-04. Record the new number — it goes in the commit message and is the only evidence this whole design worked.
+
+Measured: **22 — one more than 21, not fewer.** The phase graph narrowed nothing on this corpus. What it means: the step's premise was wrong, not the graph. `bd ready`'s size was never evidence of a missing structure, so it was never the test this step claimed it was. The reasoning, and the `bd dep tree` verification behind it, are recorded once in `40-devops/work-queue-spec.md` under WQ-05. The graph starts paying at the first phase transition, which has not happened.
 
 - [ ] **Step 8: Commit**
 
