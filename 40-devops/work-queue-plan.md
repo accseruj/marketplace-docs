@@ -648,7 +648,7 @@ Corrected 2026-08-05: `docs-wwe` was run as `frontend` here and is backend work 
 - [ ] **Step 6: Verify WQ-C1 and WQ-C2 now have something to judge, and pass**
 
 Run: `python3 scripts/queue-check.py > /tmp/qc.out 2>&1; echo $?; cat /tmp/qc.out`
-Expected: exit 0, and `checked 38 issues` — 33 existing plus 5 epics.
+Expected: exit 0. The issue count was `checked 38 issues` when this step ran on 2026-08-05 — 33 existing plus 5 epics — and rises with every issue created since, so read the exit code, not the number.
 
 Then prove the check is not vacuum-passing: add a second layer label to one issue, re-run, confirm exit 1 and a WQ-C1 line, then remove it.
 

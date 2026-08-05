@@ -3,7 +3,7 @@ doc: index
 purpose: Routing table. Read this first in every session; it says which files to open for a given task.
 read_when: always, at session start
 status: living
-updated: 2026-08-04
+updated: 2026-08-05
 ---
 
 # INDEX

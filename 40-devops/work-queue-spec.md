@@ -111,7 +111,7 @@ A rule stated here without an instrument is an obligation verified at review, an
 
 | id | Check | Injected violation that must make it exit non-zero |
 |---|---|---|
-| WQ-C1 | Every open epic, and every open non-gate issue that has a parent, carries exactly one WQ-04 label; no open issue carries a label outside the seven-value vocabulary | Add a second layer label to one issue; remove the label from one epic; add a label outside the vocabulary to one issue |
+| WQ-C1 | Every open epic, and every open issue that has a parent, carries exactly one WQ-04 label; no open issue carries a label outside the seven-value vocabulary | Add a second layer label to one issue; remove the label from one epic; add a label outside the vocabulary to one issue |
 | WQ-C2 | Phase headings in `00-product/roadmap.md` and phase epics agree on count and name | Add a phase heading to roadmap.md with no matching epic; rename one epic |
 | WQ-C3 | Every open issue carries the sections its type requires, each opening a line | Create an issue of type `task` with no Acceptance Criteria; and one whose description only mentions the phrase in prose |
 | WQ-C4 | No issue id appears in a commit subject while still open — **warning, not error** | Reference an open issue id in a commit subject and leave it open; the run must warn and still exit 0 |

@@ -199,7 +199,13 @@ def repair_references(target):
 
     missing = excluded_documents(target)
     for path in sorted(target.rglob("*.md")):
-        text = original = path.read_text(encoding="utf-8")
+        # Skipped rather than fatal, matching print_noise_manifest: a file this
+        # cannot read is a file whose citations it cannot repair, and crashing
+        # the fixture builder over one is worse than leaving it alone.
+        try:
+            text = original = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
         count = 0
         for rel in missing:
             count += text.count(f"`{rel}`")
